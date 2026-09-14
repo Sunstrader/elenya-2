@@ -1,0 +1,14 @@
+{
+  "name": "elenya-52-audio",
+  "version": "52.4.0",
+  "description": "Elenya — Corona Glacialis avec narration vocale multi-voix",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node -e \"console.log('Build completed')\"",
+    "test": "node elenya-refonte-52.4/qa/check.cjs && node elenya-refonte-52.4/qa/audio-narration.cjs && node elenya-refonte-52.4/qa/client-state.cjs"
+  },
+  "dependencies": {
+    "@google/genai": "^2.22.0",
+    "express": "^5.2.1"
+  }
+}
