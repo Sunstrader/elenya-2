@@ -952,7 +952,7 @@ function showSaveModal() {
   modal.classList.add('show'); list.innerHTML='';
   const mode=getCurrentMode();
   const title=mode==='ngplus'?'NEW GAME+ — SAUVEGARDES':'CLASSIQUE — SAUVEGARDES';
-  list.insertAdjacentHTML('beforeend',`<div class="save-mode">${title}</div>`);
+  list.insertAdjacentHTML('beforeend',`<div class="save-mode">${title}</div><div class="save-notice" style="font-size:0.82rem;opacity:0.85;margin-bottom:12px;line-height:1.4;background:rgba(255,255,255,0.04);padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);">💾 Les sauvegardes sont conservées localement dans ce navigateur. Pour jouer sur un autre appareil ou sécuriser votre progression, utilisez le bouton « Exporter ».</div>`);
   for(let i=1;i<=3;i++){
     const saveData=localStorage.getItem(mode+'_save_'+i) || localStorage.getItem('elenya_'+mode+'_save_'+i);
     const item=document.createElement('div'); item.className='save-item'+(saveData?'':' empty');
@@ -1371,15 +1371,21 @@ if(savedState) updateAAAState(savedState);
 
 function refreshBuildInfo(){
   if(!(window.google&&google.script&&google.script.run)) return;
-  google.script.run
-    .withSuccessHandler(info=>{
-      if(!info) return;
-      const el=document.getElementById('build-version');
-      if(el) el.textContent=(info.version || '52.4.0-rc3-audio')+' • '+(info.engine||'Corona Glacialis');
-      document.documentElement.dataset.engineVersion=String(info.version || '52.4.0-rc3-audio');
-    })
-    .withFailureHandler(()=>{})
-    .serverGetBuildInfo();
+  try {
+    const runner = google.script.run
+      .withSuccessHandler(info=>{
+        if(!info) return;
+        const el=document.getElementById('build-version');
+        if(el) el.textContent=(info.version || '52.4.0-rc3-audio')+' • '+(info.engine||'Corona Glacialis');
+        document.documentElement.dataset.engineVersion=String(info.version || '52.4.0-rc3-audio');
+      })
+      .withFailureHandler(()=>{});
+    if (runner && typeof runner.serverGetBuildInfo === 'function') {
+      runner.serverGetBuildInfo();
+    }
+  } catch(e) {
+    console.warn('Erreur refreshBuildInfo ignorée:', e);
+  }
 }
 
 function refreshMainMenu(){
@@ -1398,7 +1404,7 @@ function refreshMainMenu(){
     if(btn){btn.disabled=!menu.ngPlusUnlocked;btn.classList.toggle('unlocked',!!menu.ngPlusUnlocked);btn.textContent=menu.ngPlusUnlocked?'❄ NEW GAME+ — Le Cycle Brisé':'🔒 NEW GAME+ — Le Cycle Brisé';}
   };
   if(window.google&&google.script&&google.script.run){
-    google.script.run.withSuccessHandler(apply).withFailureHandler(()=>{}).serverGetMainMenu();
+    google.script.run.withSuccessHandler(apply).withFailureHandler(()=>{}).serverGetMainMenu({ achievements: getAllAchievements() });
   }
 }
 function unlockBgmFromUserGesture() {
@@ -1468,7 +1474,7 @@ function startNewGamePlus(){
     setActiveState(result.state); if(typeof RF!=='undefined') RF.resetHistory();
     document.getElementById('accueil-screen').classList.add('hidden'); document.body.classList.add('game-live'); hideOverlay();
     renderSceneDataFromServer(result.state);
-  }).withFailureHandler(err=>{hideOverlay();alert('Erreur serveur : '+err);}).serverStartNewGamePlus();
+  }).withFailureHandler(err=>{hideOverlay();alert('Erreur serveur : '+err);}).serverStartNewGamePlus({ achievements: getAllAchievements() });
 }
 function renderSceneDataFromServer(state,returnOnError=false){
   const ticket=typeof RF!=='undefined'?RF.epoch:0;
