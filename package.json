@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "build": "node scripts/build.js",
-    "lint": "node -e \"console.log('Lint vérifié avec succès')\"",
-    "test": "node elenya-refonte-52.4/qa/check.cjs && node elenya-refonte-52.4/qa/audio-narration.cjs && node elenya-refonte-52.4/qa/client-state.cjs"
+    "lint": "node scripts/lint.js",
+    "test": "node elenya-refonte-52.4/qa/check.cjs && node elenya-refonte-52.4/qa/audio-narration.cjs && node elenya-refonte-52.4/qa/client-state.cjs && node elenya-refonte-52.4/qa/refonte-fixes.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.22.0",

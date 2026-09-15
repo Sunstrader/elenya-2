@@ -2943,18 +2943,84 @@ const AudioCache = (function() {
     return dbPromise;
   }
 
-  function hashKey(str) {
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) + hash) + str.charCodeAt(i);
-      hash = hash & hash;
+  function sha256(str) {
+    function utf8Encode(s) {
+      const bytes = [];
+      for (let i = 0; i < s.length; i++) {
+        let code = s.charCodeAt(i);
+        if (code < 0x80) {
+          bytes.push(code);
+        } else if (code < 0x800) {
+          bytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+        } else if (code < 0xd800 || code >= 0xe000) {
+          bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+        } else {
+          i++;
+          code = 0x10000 + (((code & 0x3ff) << 10) | (s.charCodeAt(i) & 0x3ff));
+          bytes.push(0xf0 | (code >> 18), 0x80 | ((code >> 12) & 0x3f), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+        }
+      }
+      return bytes;
     }
-    return 'k_' + Math.abs(hash).toString(36) + '_' + str.length;
+
+    const K = [
+      0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+      0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+      0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+      0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+      0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+      0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+      0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+      0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+    ];
+
+    function rotr(n, x) { return (x >>> n) | (x << (32 - n)); }
+
+    const bytes = utf8Encode(String(str || ''));
+    const bitLength = bytes.length * 8;
+    bytes.push(0x80);
+    while ((bytes.length % 64) !== 56) bytes.push(0);
+    const hi = Math.floor(bitLength / 0x100000000);
+    const lo = bitLength >>> 0;
+    for (let i = 3; i >= 0; i--) bytes.push((hi >>> (i * 8)) & 0xff);
+    for (let i = 3; i >= 0; i--) bytes.push((lo >>> (i * 8)) & 0xff);
+
+    let H0 = 0x6a09e667, H1 = 0xbb67ae85, H2 = 0x3c6ef372, H3 = 0xa54ff53a;
+    let H4 = 0x510e527f, H5 = 0x9b05688c, H6 = 0x1f83d9ab, H7 = 0x5be0cd19;
+
+    const W = new Int32Array(64);
+    for (let i = 0; i < bytes.length; i += 64) {
+      for (let t = 0; t < 16; t++) {
+        W[t] = (bytes[i + t * 4] << 24) | (bytes[i + t * 4 + 1] << 16) | (bytes[i + t * 4 + 2] << 8) | bytes[i + t * 4 + 3];
+      }
+      for (let t = 16; t < 64; t++) {
+        const s0 = rotr(7, W[t - 15]) ^ rotr(18, W[t - 15]) ^ (W[t - 15] >>> 3);
+        const s1 = rotr(17, W[t - 2]) ^ rotr(19, W[t - 2]) ^ (W[t - 2] >>> 10);
+        W[t] = (W[t - 16] + s0 + W[t - 7] + s1) | 0;
+      }
+      let a = H0, b = H1, c = H2, d = H3, e = H4, f = H5, g = H6, h = H7;
+      for (let t = 0; t < 64; t++) {
+        const S1 = rotr(6, e) ^ rotr(11, e) ^ rotr(25, e);
+        const ch = (e & f) ^ ((~e) & g);
+        const temp1 = (h + S1 + ch + K[t] + W[t]) | 0;
+        const S0 = rotr(2, a) ^ rotr(13, a) ^ rotr(22, a);
+        const maj = (a & b) ^ (a & c) ^ (b & c);
+        const temp2 = (S0 + maj) | 0;
+        h = g; g = f; f = e; e = (d + temp1) | 0;
+        d = c; c = b; b = a; a = (temp1 + temp2) | 0;
+      }
+      H0 = (H0 + a) | 0; H1 = (H1 + b) | 0; H2 = (H2 + c) | 0; H3 = (H3 + d) | 0;
+      H4 = (H4 + e) | 0; H5 = (H5 + f) | 0; H6 = (H6 + g) | 0; H7 = (H7 + h) | 0;
+    }
+
+    return [H0, H1, H2, H3, H4, H5, H6, H7]
+      .map(val => (val >>> 0).toString(16).padStart(8, '0'))
+      .join('');
   }
 
   return {
     makeKey(text, voice, style) {
-      return hashKey(`${String(text||'').trim()}|${voice||''}|${style||''}`);
+      return 'sha256_' + sha256(`${String(text||'').trim()}|${voice||''}|${style||''}`);
     },
     async get(key) {
       const db = await getDB();
@@ -3156,7 +3222,7 @@ const RF = (() => {
   const legacyPrefs=read('ef_preferences_v524',{}),prefs={...defaults,...legacyPrefs};
   const legacyDefaults={music:.7,ambience:.18,effects:.3,voice:.8};
   Object.keys(legacyDefaults).forEach(k=>{if(Number(legacyPrefs[k])===legacyDefaults[k])prefs[k]=defaults[k]});
-  let data=null,busy=false,requestEpoch=0,pending=null,voiceEpoch=0,currentUtterance=null,autoTimer=null,modalFocus=null,explorer=null,audioContext=null,ambientNode=null,ambientGain=null,ambientFilter=null,ambienceKind=null,galleryPlayer=null,toolsOpen=false,narratorDucking=false,duckLevel=1,duckTimer=null,effectsBus=null;
+  let data=null,busy=false,requestEpoch=0,pending=null,voiceEpoch=0,isVoiceBusy=false,voiceAbortController=null,previewEpoch=0,previewAbortController=null,currentUtterance=null,autoTimer=null,modalFocus=null,explorer=null,audioContext=null,ambientNode=null,ambientGain=null,ambientFilter=null,ambienceKind=null,galleryPlayer=null,toolsOpen=false,narratorDucking=false,duckLevel=1,duckTimer=null,effectsBus=null;
   let history={entries:[],index:-1},historyMode='classic';
   const coverage=read('ef_coverage_v524',{scenes:{},edges:{},music:[]});
   coverage.scenes=coverage.scenes||{};coverage.edges=coverage.edges||{};coverage.music=Array.isArray(coverage.music)?coverage.music:[];
@@ -3297,7 +3363,13 @@ const RF = (() => {
   if('speechSynthesis' in window)window.speechSynthesis.addEventListener?.('voiceschanged',refreshVoiceChoices);
 
   function stopVoice(){
-    voiceEpoch++;currentUtterance=null;
+    isVoiceBusy = false;
+    voiceEpoch++;
+    currentUtterance = null;
+    if (voiceAbortController) {
+      try { voiceAbortController.abort(); } catch (_) {}
+      voiceAbortController = null;
+    }
     if(voicePlayer){
       try{voicePlayer.pause();voicePlayer.currentTime=0;voicePlayer.src='';}catch(_){}
     }
@@ -3310,7 +3382,7 @@ const RF = (() => {
   }
 
   function toggleSpeak(){
-    if(currentUtterance||(voicePlayer&&!voicePlayer.paused&&voicePlayer.currentTime>0)){
+    if(isVoiceBusy || currentUtterance || (voicePlayer && (!voicePlayer.paused || voicePlayer.currentTime>0))){
       stopVoice();tell('Lecture arrêtée.');
     }else{
       speak();
@@ -3318,7 +3390,7 @@ const RF = (() => {
   }
 
   // Téléchargement ou lecture depuis le cache d'un segment
-  async function fetchSegmentAudio(text, voice, style) {
+  async function fetchSegmentAudio(text, voice, style, signal) {
     const cacheKey = AudioCache.makeKey(text, voice, style);
     const cachedUrl = await AudioCache.get(cacheKey);
     if (cachedUrl) return cachedUrl;
@@ -3326,7 +3398,8 @@ const RF = (() => {
     const r = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voice, style })
+      body: JSON.stringify({ text, voice, style }),
+      signal: signal || undefined
     });
 
     if (!r.ok) {
@@ -3361,7 +3434,11 @@ const RF = (() => {
     if(document.body.classList.contains('video-playing')){tell('Ferme la cinématique pour écouter la scène.');return;}
     skipTypeWriter();
 
-    const token = voiceEpoch;
+    const token = ++voiceEpoch;
+    isVoiceBusy = true;
+    if (typeof AbortController !== 'undefined') {
+      voiceAbortController = new AbortController();
+    }
 
     // Construction du texte
     let parts = [data.title, data.narrative];
@@ -3375,7 +3452,10 @@ const RF = (() => {
 
     if (isOfficial && canFetch) {
       const segments = segmentNarrative(fullText, 800);
-      if (segments.length === 0) return;
+      if (segments.length === 0) {
+        isVoiceBusy = false;
+        return;
+      }
 
       updateNarrateUI(true, 'Préparation de la narration…');
       playSegmentsChain(segments, 0, token);
@@ -3387,8 +3467,12 @@ const RF = (() => {
 
   // Enchaînement des segments audio
   function playSegmentsChain(segments, index, token) {
-    if (token !== voiceEpoch) return;
+    if (token !== voiceEpoch) {
+      isVoiceBusy = false;
+      return;
+    }
     if (index >= segments.length) {
+      isVoiceBusy = false;
       duckOtherAudio(false);
       updateNarrateUI(false);
       tell('Lecture terminée. À toi de choisir.');
@@ -3396,15 +3480,16 @@ const RF = (() => {
     }
 
     const segmentText = segments[index];
+    const remainingText = segments.slice(index).join('\n\n');
     tell(`Narration en cours (${index + 1}/${segments.length})…`);
 
-    fetchSegmentAudio(segmentText, prefs.voiceURI, prefs.voiceStyle || 'fantasy')
+    fetchSegmentAudio(segmentText, prefs.voiceURI, prefs.voiceStyle || 'fantasy', voiceAbortController ? voiceAbortController.signal : null)
       .then(audioUrl => {
         if (token !== voiceEpoch) return;
 
         const player = getVoicePlayer();
         if (!player) {
-          fallbackSpeech(segmentText, token);
+          fallbackSpeech(remainingText, token);
           return;
         }
 
@@ -3429,11 +3514,12 @@ const RF = (() => {
 
         player.onerror = () => {
           if (token !== voiceEpoch) return;
-          handleTtsError(new Error('Erreur de lecture audio'), segmentText, token);
+          handleTtsError(new Error('Erreur de lecture audio'), remainingText, token);
         };
 
         player.play().catch(playErr => {
           if (token !== voiceEpoch) return;
+          isVoiceBusy = false;
           tell('Lecture bloquée par le navigateur. Clique sur [Lire la scène].');
           duckOtherAudio(false);
           updateNarrateUI(false);
@@ -3441,12 +3527,14 @@ const RF = (() => {
       })
       .catch(err => {
         if (token !== voiceEpoch) return;
-        handleTtsError(err, segmentText, token);
+        if (err.name === 'AbortError') return;
+        handleTtsError(err, remainingText, token);
       });
   }
 
   // Gestion robuste et compréhensible des erreurs TTS
   function handleTtsError(err, fallbackText, token) {
+    isVoiceBusy = false;
     duckOtherAudio(false);
     updateNarrateUI(false);
 
@@ -3550,7 +3638,10 @@ const RF = (() => {
   function open(title,html){stopVoice();clearTimeout(autoTimer);modalFocus=document.activeElement;$('rf-dialog-title').textContent=title;$('rf-dialog-content').innerHTML=html;$('rf-dialog').hidden=false;$('rf-close').focus();}
   function close(){
     if($('rf-dialog').hidden)return;
-    if(previewPlayer){previewPlayer.pause();previewPlayer.src='';}
+    previewEpoch++;
+    if(previewAbortController){try{previewAbortController.abort();}catch(_){}previewAbortController=null;}
+    if(previewPlayer){try{previewPlayer.pause();previewPlayer.currentTime=0;previewPlayer.src='';}catch(_){}}
+    if('speechSynthesis' in window)window.speechSynthesis.cancel();
     if(galleryPlayer){galleryPlayer.pause();galleryPlayer=null;if(data)playAudioForScene(data.mood||'exploration')}
     $('rf-dialog').hidden=true;
     if(modalFocus?.isConnected)modalFocus.focus();
@@ -3665,50 +3756,79 @@ const RF = (() => {
     const btnPreview = $('rf-btn-preview-voice');
     const btnStopPreview = $('rf-btn-preview-stop');
     const previewStatus = $('rf-preview-status');
+    const PREVIEW_SAMPLE_TEXT = "Sur les crêtes de givre, le vent murmure les légendes d'Elenya. Les cristaux d'éther s'illuminent dans la pénombre glaciale.";
 
     btnPreview.onclick = async () => {
       const p = getPreviewPlayer();
-      p.pause();
+      try { p.pause(); p.currentTime = 0; } catch(_) {}
       btnPreview.disabled = true;
       btnStopPreview.style.display = 'inline-block';
-      previewStatus.textContent = '⏳ Génération de l’aperçu…';
+
+      const token = ++previewEpoch;
+      if (previewAbortController) {
+        try { previewAbortController.abort(); } catch(_) {}
+      }
+      if (typeof AbortController !== 'undefined') {
+        previewAbortController = new AbortController();
+      }
 
       try {
         const isOfficial = OFFICIAL_VOICES.some(v => v.id === prefs.voiceURI);
         if (isOfficial) {
-          const r = await fetch('/api/tts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              text: "Sur les crêtes de givre, le vent murmure les légendes d'Elenya. Les cristaux d'éther s'illuminent dans la pénombre glaciale.",
-              voice: prefs.voiceURI,
-              style: prefs.voiceStyle || 'fantasy',
-              isPreview: true
-            })
-          });
-          if (!r.ok) {
-            const errData = await r.json().catch(()=>({}));
-            throw new Error(errData.error || ('Erreur ' + r.status));
-          }
-          const res = await r.json();
-          if (!res || !res.audioUrl) throw new Error('Aucun audio reçu');
+          const cacheKey = AudioCache.makeKey(PREVIEW_SAMPLE_TEXT, prefs.voiceURI, prefs.voiceStyle || 'fantasy');
+          let audioUrl = await AudioCache.get(cacheKey);
+          if (token !== previewEpoch) return;
 
-          p.src = res.audioUrl;
+          if (audioUrl) {
+            previewStatus.textContent = '▶️ Lecture (cache)…';
+          } else {
+            previewStatus.textContent = '⏳ Génération de l’aperçu…';
+            const r = await fetch('/api/tts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: PREVIEW_SAMPLE_TEXT,
+                voice: prefs.voiceURI,
+                style: prefs.voiceStyle || 'fantasy',
+                isPreview: true
+              }),
+              signal: previewAbortController ? previewAbortController.signal : undefined
+            });
+            if (token !== previewEpoch) return;
+            if (!r.ok) {
+              const errData = await r.json().catch(()=>({}));
+              throw new Error(errData.error || ('Erreur ' + r.status));
+            }
+            const res = await r.json();
+            if (token !== previewEpoch) return;
+            if (!res || !res.audioUrl) throw new Error('Aucun audio reçu');
+            audioUrl = res.audioUrl;
+            await AudioCache.set(cacheKey, audioUrl);
+            if (token !== previewEpoch) return;
+          }
+
+          p.src = audioUrl;
           p.playbackRate = prefs.rate || 1;
           p.volume = _isMuted ? 0 : (prefs.voice ?? 1);
 
           p.onplay = () => {
-            previewStatus.textContent = '▶️ Lecture en cours…';
+            if (token === previewEpoch) {
+              previewStatus.textContent = '▶️ Lecture en cours…';
+            }
           };
           p.onended = () => {
-            btnPreview.disabled = false;
-            btnStopPreview.style.display = 'none';
-            previewStatus.textContent = 'Prêt';
+            if (token === previewEpoch) {
+              btnPreview.disabled = false;
+              btnStopPreview.style.display = 'none';
+              previewStatus.textContent = 'Prêt';
+            }
           };
           p.onerror = () => {
-            btnPreview.disabled = false;
-            btnStopPreview.style.display = 'none';
-            previewStatus.textContent = 'Erreur lors de la lecture';
+            if (token === previewEpoch) {
+              btnPreview.disabled = false;
+              btnStopPreview.style.display = 'none';
+              previewStatus.textContent = 'Erreur lors de la lecture';
+            }
           };
           await p.play();
         } else {
@@ -3721,28 +3841,43 @@ const RF = (() => {
           const fr = frenchVoices();
           const sel = fr.find(v => v.voiceURI === prefs.voiceURI) || fr[0];
           if (sel) u.voice = sel;
-          u.onstart = () => { previewStatus.textContent = '▶️ Lecture en cours…'; };
+          u.onstart = () => {
+            if (token === previewEpoch) previewStatus.textContent = '▶️ Lecture en cours…';
+          };
           u.onend = () => {
-            btnPreview.disabled = false;
-            btnStopPreview.style.display = 'none';
-            previewStatus.textContent = 'Prêt';
+            if (token === previewEpoch) {
+              btnPreview.disabled = false;
+              btnStopPreview.style.display = 'none';
+              previewStatus.textContent = 'Prêt';
+            }
           };
           u.onerror = () => {
-            btnPreview.disabled = false;
-            btnStopPreview.style.display = 'none';
-            previewStatus.textContent = 'Erreur synthèse';
+            if (token === previewEpoch) {
+              btnPreview.disabled = false;
+              btnStopPreview.style.display = 'none';
+              previewStatus.textContent = 'Erreur synthèse';
+            }
           };
           window.speechSynthesis.speak(u);
         }
       } catch (err) {
-        btnPreview.disabled = false;
-        btnStopPreview.style.display = 'none';
-        previewStatus.textContent = err.message || 'Erreur aperçu';
+        if (token === previewEpoch) {
+          btnPreview.disabled = false;
+          btnStopPreview.style.display = 'none';
+          previewStatus.textContent = (err.name === 'AbortError') ? 'Arrêté' : (err.message || 'Erreur aperçu');
+        }
       }
     };
 
     btnStopPreview.onclick = () => {
-      if (previewPlayer) { previewPlayer.pause(); previewPlayer.src = ''; }
+      previewEpoch++;
+      if (previewAbortController) {
+        try { previewAbortController.abort(); } catch(_) {}
+        previewAbortController = null;
+      }
+      if (previewPlayer) {
+        try { previewPlayer.pause(); previewPlayer.currentTime = 0; previewPlayer.src = ''; } catch(_) {}
+      }
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       btnPreview.disabled = false;
       btnStopPreview.style.display = 'none';

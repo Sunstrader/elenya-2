@@ -27,8 +27,8 @@ function createIsolatedEngine(root) {
   const ref = loadEngine(root);
   return {
     referenceApi: ref.api,
-    run(fnName, args) {
-      const tempProps = new Map();
+    run(fnName, args, customProps) {
+      const tempProps = customProps ? new Map(customProps) : new Map();
       const propertyStore = {getProperty:k=>tempProps.get(k)||null,setProperty:(k,v)=>tempProps.set(k,v),deleteProperty:k=>tempProps.delete(k)};
       let uuid = 0;
       const ctx = vm.createContext({console, Date, Math, JSON, PropertiesService:{getUserProperties:()=>propertyStore,getScriptProperties:()=>propertyStore}, Logger:{log:()=>{}}, Utilities:{getUuid:()=> 'iso-uuid-'+(++uuid)}});

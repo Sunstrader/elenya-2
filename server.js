@@ -64,16 +64,24 @@ const OFFICIAL_VOICE_IDS = new Set([
 const PREVIEW_SAMPLE_TEXT = "Sur les crêtes de givre, le vent murmure les légendes d'Elenya. Les cristaux d'éther s'illuminent dans la pénombre glaciale.";
 
 // Lazy Gemini client
-let geminiClient = null;
+let geminiClients = null;
+let currentClientIndex = 0;
+
 function getGeminiClient() {
-  if (!geminiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY non configurée');
+  if (!geminiClients) {
+    const apiKeyStr = process.env.GEMINI_API_KEY_VOICE || process.env.GEMINI_API_KEY;
+    if (!apiKeyStr) {
+      throw new Error('GEMINI_API_KEY_VOICE non configurée');
     }
-    geminiClient = new GoogleGenAI({ apiKey });
+    const keys = apiKeyStr.split(',').map(k => k.trim()).filter(k => k);
+    if (keys.length === 0) {
+      throw new Error('Aucune clé valide trouvée dans GEMINI_API_KEY_VOICE');
+    }
+    geminiClients = keys.map(apiKey => new GoogleGenAI({ apiKey }));
   }
-  return geminiClient;
+  const client = geminiClients[currentClientIndex];
+  currentClientIndex = (currentClientIndex + 1) % geminiClients.length;
+  return client;
 }
 
 // Limiteur de concurrence simple pour la synthèse vocale (max 2 requêtes simultanées)
@@ -312,7 +320,13 @@ app.post('/api/gas/:functionName', (req, res) => {
       if (!unlocked) {
         return res.json({ ok: true, result: { ok: false, error: 'NEW GAME+ verrouillé. Termine les 9 fins classiques requises.' } });
       }
-      const rawRes = isolatedEngine.run('serverStartNewGamePlus', []);
+      const initialProps = new Map([
+        ['elenya_globals', JSON.stringify({
+          achievements: clientAchievements,
+          globalFlags: Array.isArray(clientMeta.globalFlags) ? clientMeta.globalFlags : []
+        })]
+      ]);
+      const rawRes = isolatedEngine.run('serverStartNewGamePlus', [], initialProps);
       return res.json({ ok: true, result: rawRes });
     }
 
