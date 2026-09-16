@@ -875,7 +875,7 @@ function _dbActe1V52_() {
         { type: "SET_FLAG", target: "convergence_acknowledged" },
         { type: "SET_FLAG", target: "solo_convergence_choisie" }
       ],
-      next: 'ACTE1_07_RETROUVAILLES'
+      next: 'ACTE1_08B_BIVOUAC_LISIERE'
     },
     {
       key: 'V28_DOUBLE',
