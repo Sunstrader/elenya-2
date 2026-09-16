@@ -19,19 +19,14 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path('elenya-refonte-52.4/project/DATABASE_Acte1.js')
           s = p.read_text(encoding='utf-8')
-          old = '''{ type: "SET_FLAG", target: "solo_convergence_choisie" }
-              ],
-              next: 'ACTE1_07_RETROUVAILLES' '''
-          new = '''{ type: "SET_FLAG", target: "solo_convergence_choisie" }
-              ],
-              next: 'ACTE1_08B_BIVOUAC_LISIERE' '''
-          if old not in s:
-              raise SystemExit('Bloc solo attendu introuvable; aucun changement effectué')
-          if s.count(old) != 1:
-              raise SystemExit(f'Bloc solo trouvé {s.count(old)} fois; arrêt de sécurité')
-          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          pattern = r'(\{ type: "SET_FLAG", target: "solo_convergence_choisie" \}\s*\],\s*next:\s*)\x27ACTE1_07_RETROUVAILLES\x27'
+          s2, n = re.subn(pattern, r"\1'ACTE1_08B_BIVOUAC_LISIERE'", s, count=1)
+          if n != 1:
+              raise SystemExit(f'Correctif attendu exactement 1 fois, trouvé {n}; aucun changement effectué')
+          p.write_text(s2, encoding='utf-8')
           PY
           npm test
           rm -f fix-solo-convergence.txt
