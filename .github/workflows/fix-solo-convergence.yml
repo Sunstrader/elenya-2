@@ -1,0 +1,42 @@
+name: Fix solo convergence
+on:
+  push:
+    branches: [main]
+    paths:
+      - fix-solo-convergence.txt
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Corriger la branche solo
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('elenya-refonte-52.4/project/DATABASE_Acte1.js')
+          s = p.read_text(encoding='utf-8')
+          old = '''{ type: "SET_FLAG", target: "solo_convergence_choisie" }
+              ],
+              next: 'ACTE1_07_RETROUVAILLES' '''
+          new = '''{ type: "SET_FLAG", target: "solo_convergence_choisie" }
+              ],
+              next: 'ACTE1_08B_BIVOUAC_LISIERE' '''
+          if old not in s:
+              raise SystemExit('Bloc solo attendu introuvable; aucun changement effectué')
+          if s.count(old) != 1:
+              raise SystemExit(f'Bloc solo trouvé {s.count(old)} fois; arrêt de sécurité')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+          npm test
+          rm -f fix-solo-convergence.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Corrige la convergence de la voie solo"
+          git push origin main
