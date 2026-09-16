@@ -4008,14 +4008,14 @@
             "FIN_SOLO"
           ]
         ],
-        "FIN_ECLAIREUR": [
+        "FIN_POLY": [
           [
             "ACTE1_01_REVEIL",
             "ADD"
           ],
           [
             "ACTE1_01_REVEIL_DETAILS",
-            "B"
+            "A"
           ],
           [
             "ACTE1_02_RENCONTRE_1",
@@ -4023,7 +4023,7 @@
           ],
           [
             "ACTE1_02_RENCONTRE_2",
-            "O"
+            "E"
           ],
           [
             "ACTE1_03_FAMILIER_1",
@@ -4031,7 +4031,7 @@
           ],
           [
             "ACTE1_03_FAMILIER_2",
-            "O"
+            "E"
           ],
           [
             "ACTE1_04_FRESQUE",
@@ -4047,7 +4047,7 @@
           ],
           [
             "ACTE1_05_BIVOUAC",
-            "O3"
+            "E3b"
           ],
           [
             "ACTE1_05B_REVEIL_BIVOUAC",
@@ -4055,23 +4055,19 @@
           ],
           [
             "ACTE1_05C_JALOUSIE_SOUTERRAINE",
-            "O1"
+            "S"
           ],
           [
             "ACTE1_06_REMONTEE",
-            "O"
+            "C"
           ],
           [
             "ACTE1_06C_CONVERGENCE",
-            "NEXT"
+            "APPROCHER_O_DEPUIS_E"
           ],
           [
-            "ACTE1_07_RETROUVAILLES",
-            "B"
-          ],
-          [
-            "ACTE1_07B_REACTION_TRIANGULATION",
-            "CONTINUE"
+            "ACTE1_07K_RETROUVAILLES_KAELEN",
+            "K_REVENUE"
           ],
           [
             "LIEN_MARCHE_1",
@@ -4083,11 +4079,11 @@
           ],
           [
             "ACTE1_08B_BIVOUAC_LISIERE",
-            "SUIVRE_CHANT"
+            "E_FEU_ROMANCE"
           ],
           [
-            "ACTE1_08B_LYRA_ECHO",
-            "B"
+            "LIEN_LISIERE_ALISTAIR",
+            "E_ROMANCE"
           ],
           [
             "ACTE1_08B_BIVOUAC_LISIERE",
@@ -4099,11 +4095,11 @@
           ],
           [
             "ACTE2_01_RENCONTRE_SILAS_1",
-            "O"
+            "E"
           ],
           [
-            "ACTE2_01_SILAS_FOUILLAGE",
-            "PRENDRE"
+            "ACTE2_01B_SILAS_CONFIDENCE",
+            "A"
           ],
           [
             "ACTE2_01C_CHEMIN_VOLIERES",
@@ -4138,28 +4134,24 @@
             "A"
           ],
           [
-            "LIEN_O_2_CONFIDENCE",
-            "A"
+            "ALISTAIR_PRIERE",
+            "NEXT"
           ],
           [
             "ACTE2_06_NUIT_AUBERGE",
-            "E"
-          ],
-          [
-            "ACTE2_07_INTIMITE_E",
-            "B"
-          ],
-          [
-            "ACTE2_07B_REACTION_O",
-            "NEXT_REFUS"
-          ],
-          [
-            "ACTE2_06B_LENDEMAIN_CONFIDENCE",
-            "A"
+            "S"
           ],
           [
             "ACTE2_08_MATIN_AUBERGE",
-            "O"
+            "V517_RELATION_CHOICE_MORNING"
+          ],
+          [
+            "ROMANCE_AGENCY_MATIN_AUBERGE",
+            "BOTH"
+          ],
+          [
+            "ACTE2_08_MATIN_AUBERGE",
+            "S"
           ],
           [
             "LIEN_POMME",
@@ -4179,7 +4171,7 @@
           ],
           [
             "ACTE2_09_MARCHE_BLANCHE",
-            "A"
+            "B_HUNGRY"
           ],
           [
             "LIEN_MARCHE_BLANCHE",
@@ -4195,7 +4187,7 @@
           ],
           [
             "FRAGMENT_2_TRONE",
-            "B"
+            "A"
           ],
           [
             "FRAGMENT_2_REVEIL",
@@ -4287,7 +4279,7 @@
           ],
           [
             "LYRA_VERITE",
-            "B"
+            "A"
           ],
           [
             "ACTE3_03B_RESISTANCE",
@@ -4295,7 +4287,7 @@
           ],
           [
             "ACTE3_04_ENVOUTEMENT",
-            "POLY"
+            "S"
           ],
           [
             "ACTE3_05_FIEVRE",
@@ -4303,7 +4295,7 @@
           ],
           [
             "ACTE3_06_REVEIL_TORDU",
-            "A"
+            "B"
           ],
           [
             "ACTE3_07_BRISER_LA_GLACE",
@@ -4315,23 +4307,31 @@
           ],
           [
             "ACTE3_08_MISE_AU_POINT",
-            "DOMINER_E"
+            "DOMINER_O"
           ],
           [
             "ACTE3_09_ENTREE_SANCTUAIRE",
             "ENTRER"
           ],
           [
-            "KAELEN_SILENCE",
-            "NEXT"
-          ],
-          [
             "ACTE3_09B_BIVOUAC_TEMPETE",
-            "S_AVANCER_SOLO"
+            "AVANCER"
           ],
           [
             "SERAPHINE_INTRO",
             "D"
+          ],
+          [
+            "SILAS_MEMOIRES",
+            "A"
+          ],
+          [
+            "SILAS_MEMOIRES",
+            "B"
+          ],
+          [
+            "SILAS_MEMOIRES",
+            "C"
           ],
           [
             "ACTE3_SILAS_CAMEO",
@@ -4339,421 +4339,15 @@
           ],
           [
             "ACTE3_09_VILLAGE_CACHE",
-            "A"
-          ],
-          [
-            "ORAYA_INDICE_1",
-            "NEXT"
-          ],
-          [
-            "ACTE3_10_ACCUEIL_CULTE_1",
-            "O"
-          ],
-          [
-            "ACTE3_11_JUGEMENT",
-            "O"
-          ],
-          [
-            "ACTE3_11_PRISON_ECHANGE",
-            "SUIVRE"
-          ],
-          [
-            "FRAGMENT_3_TRAHISON",
-            "A"
-          ],
-          [
-            "FRAGMENT_3_REVEIL",
-            "NEXT"
-          ],
-          [
-            "ACTE3_13_ARTEFACT",
-            "A"
-          ],
-          [
-            "ACTE4_01_DEPART_VILLAGE",
-            "A"
-          ],
-          [
-            "ACTE4_01_HALTE_DOME",
-            "AVANCER"
-          ],
-          [
-            "ACTE4_02_CHOIX_CHAMBRE",
-            "O"
-          ],
-          [
-            "ACTE4_03_SPICY_KAELEN",
-            "A_SUB"
-          ],
-          [
-            "ACTE4_05_ARRIVEE_PORTES_1",
-            "NEXT"
-          ],
-          [
-            "ACTE4_06_MASQUE_TOMBE_1",
-            "KNEW"
-          ],
-          [
-            "ACTE4_06_MASQUE_TOMBE_2",
-            "SPARE"
-          ],
-          [
-            "ACTE4_06_OMBRE_AVEU",
-            "TRUST"
-          ],
-          [
-            "FRAGMENT_4_STELE",
-            "A"
-          ],
-          [
-            "FRAGMENT_4_RETOUR",
-            "NEXT"
-          ],
-          [
-            "ACTE4_08_CORRIDOR_OBSIDIENNE",
-            "PENETRER"
-          ],
-          [
-            "ACTE4_08_SEUIL_ETERNITE",
-            "S"
-          ],
-          [
-            "ACTE4_09_TRONE_EBENE",
-            "V28_FIN_RECONVERSION_E"
-          ]
-        ],
-        "FIN_POLY": [
-          [
-            "ACTE1_01_REVEIL",
-            "A"
-          ],
-          [
-            "ACTE1_01_REVEIL_DETAILS",
-            "B"
-          ],
-          [
-            "ACTE1_02_RENCONTRE_1",
-            "NEXT"
-          ],
-          [
-            "ACTE1_02_RENCONTRE_2",
-            "E"
-          ],
-          [
-            "ACTE1_03_FAMILIER_1",
-            "NEXT"
-          ],
-          [
-            "ACTE1_03_FAMILIER_2",
-            "O"
-          ],
-          [
-            "ACTE1_04_FRESQUE",
-            "O"
-          ],
-          [
-            "ACTE1_04_TRANSITION",
-            "CONTINUER"
-          ],
-          [
-            "ACTE1_04_AUTOMATE",
-            "NEXT"
-          ],
-          [
-            "ACTE1_05_BIVOUAC",
-            "O3"
-          ],
-          [
-            "ACTE1_05B_REVEIL_BIVOUAC",
-            "A"
-          ],
-          [
-            "ACTE1_05C_JALOUSIE_SOUTERRAINE",
-            "O1"
-          ],
-          [
-            "ACTE1_06_REMONTEE",
-            "C"
-          ],
-          [
-            "ACTE1_06C_CONVERGENCE",
-            "APPROCHER_E_DEPUIS_O"
-          ],
-          [
-            "ACTE1_07E_RETROUVAILLES_ALISTAIR",
-            "E_KAELEN"
-          ],
-          [
-            "LIEN_MARCHE_1",
-            "OE_PROCHES"
-          ],
-          [
-            "LIEN_MARCHE_1B",
-            "NEXT"
-          ],
-          [
-            "ACTE1_08B_BIVOUAC_LISIERE",
-            "REPARTIR"
-          ],
-          [
-            "FRAGMENT_CENDRES_SOLEIL",
-            "A"
-          ],
-          [
-            "ACTE2_01_RENCONTRE_SILAS_1",
-            "S"
-          ],
-          [
-            "ACTE2_01C_CHEMIN_VOLIERES",
-            "NEXT"
-          ],
-          [
-            "ACTE2_02_QS_FAMILIERS",
-            "A"
-          ],
-          [
-            "ACTE2_02B_PANTHERE_LIBEREE",
-            "NEXT"
-          ],
-          [
-            "FEN_INDICE_2",
-            "NEXT"
-          ],
-          [
-            "ACTE2_03_BIVOUAC_AUTOMNE",
-            "A"
-          ],
-          [
-            "ACTE2_04_PONT_RUINE",
-            "OBSERVER"
-          ],
-          [
-            "ACTE2_04_RUINES_DETAIL",
-            "MEMORISER"
-          ],
-          [
-            "ACTE2_04_VILLAGE_HOSTILE",
-            "E"
-          ],
-          [
-            "800",
-            "A"
-          ],
-          [
-            "ACTE2_05_ARRIVEE_AUBERGE",
-            "A"
-          ],
-          [
-            "ACTE2_06_NUIT_AUBERGE",
-            "E"
-          ],
-          [
-            "ACTE2_07_INTIMITE_E",
-            "A"
-          ],
-          [
-            "ACTE2_07B_REACTION_O",
-            "NEXT_INTIMITE"
-          ],
-          [
-            "ACTE2_08B_MICRO_REACTION",
-            "NEXT"
-          ],
-          [
-            "ACTE2_08_MATIN_AUBERGE",
-            "E"
-          ],
-          [
-            "LIEN_POMME",
-            "A"
-          ],
-          [
-            "LIEN_NON_DIT",
-            "NEXT"
-          ],
-          [
-            "LIEN_MARCHE_2",
-            "SILENCE"
-          ],
-          [
-            "LIEN_MARCHE_2B",
-            "NEXT"
-          ],
-          [
-            "ACTE2_09_MARCHE_BLANCHE",
-            "B"
-          ],
-          [
-            "LIEN_MARCHE_BLANCHE",
-            "E_PROCHE"
-          ],
-          [
-            "LIEN_MARCHE_BLANCHE_B",
-            "NEXT"
-          ],
-          [
-            "ACTE2_10_RAVIN",
-            "NEXT"
-          ],
-          [
-            "NOMADE_1",
-            "B"
-          ],
-          [
-            "ACTE2_10_RIVIERE_CRISTAL",
-            "S"
-          ],
-          [
-            "ACTE2_11_RIVE_NORD",
-            "A"
-          ],
-          [
-            "LIEN_FEU_PARTAGE",
-            "NEXT"
-          ],
-          [
-            "ACTE2_12_NUIT_ISOLEE",
-            "S"
-          ],
-          [
-            "ACTE2_12_QS_FLEURS",
-            "B"
-          ],
-          [
-            "ACTE2_13_PRYMAELIS",
-            "NEXT"
-          ],
-          [
-            "ACTE2_13_MATIN_BIVOUAC",
-            "A"
-          ],
-          [
-            "ACTE2_14_VALVE_INTERMEDIAIRE",
-            "ABSORBER_FILON"
-          ],
-          [
-            "ACTE2_14_VALVE_ECHO",
-            "NEXT"
-          ],
-          [
-            "ACTE2_14_MINE_PRYMAËLIS",
-            "C"
-          ],
-          [
-            "ACTE2_15_SOUVENIRS_MINE",
-            "NEXT"
-          ],
-          [
-            "ACTE2_16_NUIT_MINE",
-            "SOLO"
-          ],
-          [
-            "ACTE2_16_COMMUNION_SOLO",
-            "A"
-          ],
-          [
-            "ACTE2_17_RETROUVAILLES_SORTIE",
-            "B"
-          ],
-          [
-            "ACTE3_01_TENSION_GROUPE",
-            "REPARTIR"
-          ],
-          [
-            "FEU_PARTAGE_EXTENSION",
-            "NEXT"
-          ],
-          [
-            "ACTE3_01_FRONTIERE_1",
-            "NEXT"
-          ],
-          [
-            "ACTE3_01_FRONTIERE_2",
-            "NEXT"
-          ],
-          [
-            "ACTE3_01_FRONTIERE_3",
-            "O"
-          ],
-          [
-            "ACTE3_02_SAUVETAGE",
-            "A"
-          ],
-          [
-            "LYRA_INDICE_1",
-            "NEXT"
-          ],
-          [
-            "ACTE3_03_LA_SIRENE",
-            "A"
-          ],
-          [
-            "LYRA_VERITE",
-            "A"
-          ],
-          [
-            "ACTE3_03B_RESISTANCE",
-            "A"
-          ],
-          [
-            "ACTE3_04_ENVOUTEMENT",
-            "E"
-          ],
-          [
-            "ACTE3_05_FIEVRE",
-            "A"
-          ],
-          [
-            "ACTE3_06_REVEIL_TORDU",
-            "A"
-          ],
-          [
-            "ACTE3_07_BRISER_LA_GLACE",
-            "A"
-          ],
-          [
-            "URGENCE_NARRATIVE",
-            "B"
-          ],
-          [
-            "ACTE3_08_MISE_AU_POINT",
-            "S"
-          ],
-          [
-            "ACTE3_09_ENTREE_SANCTUAIRE",
-            "ENTRER"
-          ],
-          [
-            "FRAGMENT_SERMENT_CENDRES",
-            "NEXT"
-          ],
-          [
-            "KAELEN_SILENCE",
-            "NEXT"
-          ],
-          [
-            "ACTE3_09B_BIVOUAC_TEMPETE",
-            "DOMINER"
-          ],
-          [
-            "ACTE3_09B_ROMANCE_URGENCE",
-            "A"
-          ],
-          [
-            "SERAPHINE_INTRO",
-            "B"
-          ],
-          [
-            "ACTE3_09_VILLAGE_CACHE",
             "V517_RELATION_CHOICE_VILLAGE"
           ],
           [
             "ROMANCE_AGENCY_VILLAGE",
-            "E"
+            "O"
           ],
           [
-            "JOUTE_E_2",
-            "B"
+            "JOUTE_O_2",
+            "D"
           ],
           [
             "ACTE3_09_VILLAGE_CACHE",
@@ -4765,11 +4359,11 @@
           ],
           [
             "ACTE3_10_ACCUEIL_CULTE_1",
-            "O"
+            "E"
           ],
           [
             "ACTE3_11_JUGEMENT",
-            "S"
+            "E_CLEMENT"
           ],
           [
             "FRAGMENT_3_TRAHISON",
@@ -4801,15 +4395,15 @@
           ],
           [
             "ACTE4_AVEU_PARALLELE",
-            "B"
+            "A"
           ],
           [
             "ACTE4_05_ARRIVEE_PORTES_1",
-            "V517_DEFERRED_O"
+            "V517_DEFERRED_E"
           ],
           [
-            "ROMANCE_DEFERRED_KAELEN",
-            "CONF_TRUST"
+            "ROMANCE_DEFERRED_ALISTAIR",
+            "CONF_DOUX"
           ],
           [
             "ACTE4_05_ARRIVEE_PORTES_1",
@@ -4846,6 +4440,412 @@
           [
             "ACTE4_09_TRONE_EBENE",
             "FIN_POLY"
+          ]
+        ],
+        "FIN_ECLAIREUR": [
+          [
+            "ACTE1_01_REVEIL",
+            "A"
+          ],
+          [
+            "ACTE1_01_REVEIL_DETAILS",
+            "B"
+          ],
+          [
+            "ACTE1_02_RENCONTRE_1",
+            "NEXT"
+          ],
+          [
+            "ACTE1_02_RENCONTRE_2",
+            "S"
+          ],
+          [
+            "ACTE1_03_FAMILIER_1",
+            "NEXT"
+          ],
+          [
+            "ACTE1_03_FAMILIER_2",
+            "S"
+          ],
+          [
+            "ACTE1_04_FRESQUE",
+            "C"
+          ],
+          [
+            "ACTE1_SOLO_ECHO",
+            "A"
+          ],
+          [
+            "ACTE1_04_TRANSITION",
+            "CONTINUER"
+          ],
+          [
+            "ACTE1_04_AUTOMATE",
+            "NEXT"
+          ],
+          [
+            "ACTE1_05_BIVOUAC",
+            "S2"
+          ],
+          [
+            "ACTE1_05B_REVEIL_BIVOUAC",
+            "A_SOLO"
+          ],
+          [
+            "ACTE1_06_REMONTEE",
+            "S"
+          ],
+          [
+            "ACTE1_06C_CONVERGENCE",
+            "V28_E"
+          ],
+          [
+            "ACTE1_07_RETROUVAILLES",
+            "B"
+          ],
+          [
+            "ACTE1_07B_REACTION_TRIANGULATION",
+            "CONTINUE"
+          ],
+          [
+            "LIEN_MARCHE_1",
+            "E_PROCHE"
+          ],
+          [
+            "LIEN_MARCHE_1B",
+            "NEXT"
+          ],
+          [
+            "ACTE1_08B_BIVOUAC_LISIERE",
+            "REPARTIR"
+          ],
+          [
+            "FRAGMENT_ALISTAIR_ANCESTRE",
+            "A"
+          ],
+          [
+            "ACTE2_01_RENCONTRE_SILAS_1",
+            "O"
+          ],
+          [
+            "ACTE2_01_SILAS_FOUILLAGE",
+            "PRENDRE"
+          ],
+          [
+            "ACTE2_01C_CHEMIN_VOLIERES",
+            "NEXT"
+          ],
+          [
+            "ACTE2_02_QS_FAMILIERS",
+            "A"
+          ],
+          [
+            "ACTE2_02B_PANTHERE_LIBEREE",
+            "NEXT"
+          ],
+          [
+            "FEN_INDICE_2",
+            "NEXT"
+          ],
+          [
+            "ACTE2_03_BIVOUAC_AUTOMNE",
+            "A"
+          ],
+          [
+            "ACTE2_04_PONT_RUINE",
+            "FORCER"
+          ],
+          [
+            "ACTE2_04_VILLAGE_HOSTILE",
+            "E"
+          ],
+          [
+            "800",
+            "A"
+          ],
+          [
+            "ACTE2_05_ARRIVEE_AUBERGE",
+            "A"
+          ],
+          [
+            "LIEN_E_2_CONFIDENCE",
+            "A"
+          ],
+          [
+            "ALISTAIR_PRIERE",
+            "NEXT"
+          ],
+          [
+            "ACTE2_06_NUIT_AUBERGE",
+            "S"
+          ],
+          [
+            "ACTE2_06B_LENDEMAIN_CONFIDENCE",
+            "A"
+          ],
+          [
+            "R_E_1",
+            "E_TOUCH"
+          ],
+          [
+            "LIEN_MARCHE_2",
+            "SILENCE"
+          ],
+          [
+            "LIEN_MARCHE_2B",
+            "NEXT"
+          ],
+          [
+            "ACTE2_09_MARCHE_BLANCHE",
+            "BAUME_SILAS"
+          ],
+          [
+            "ACTE2_09_MARCHE_BLANCHE",
+            "B"
+          ],
+          [
+            "LIEN_MARCHE_BLANCHE",
+            "E_PROCHE"
+          ],
+          [
+            "LIEN_MARCHE_BLANCHE_B",
+            "NEXT"
+          ],
+          [
+            "ACTE2_10_RAVIN",
+            "NEXT"
+          ],
+          [
+            "NOMADE_1",
+            "A"
+          ],
+          [
+            "ACTE2_10_RIVIERE_CRISTAL",
+            "E"
+          ],
+          [
+            "ACTE2_11_RIVE_NORD",
+            "A"
+          ],
+          [
+            "ACTE2_12_NUIT_ISOLEE",
+            "E"
+          ],
+          [
+            "REVE_ALISTAIR",
+            "A"
+          ],
+          [
+            "ACTE2_12_QS_FLEURS",
+            "A"
+          ],
+          [
+            "ACTE2_13_PRYMAELIS",
+            "NEXT"
+          ],
+          [
+            "ACTE2_13_MATIN_BIVOUAC",
+            "A"
+          ],
+          [
+            "ACTE2_14_VALVE_INTERMEDIAIRE",
+            "TRAVERSER"
+          ],
+          [
+            "ACTE2_14_VALVE_ECHO",
+            "NEXT"
+          ],
+          [
+            "ACTE2_14_MINE_PRYMAËLIS",
+            "E_REDEMPTION"
+          ],
+          [
+            "ACTE2_15_SOUVENIRS_MINE",
+            "NEXT"
+          ],
+          [
+            "ACTE2_16_NUIT_MINE",
+            "E_DOUX"
+          ],
+          [
+            "ACTE2_17_RETROUVAILLES_SORTIE",
+            "C"
+          ],
+          [
+            "ACTE3_01_TENSION_GROUPE",
+            "REPARTIR"
+          ],
+          [
+            "ACTE3_01_FRONTIERE_1",
+            "NEXT"
+          ],
+          [
+            "ACTE3_01_FRONTIERE_2",
+            "NEXT"
+          ],
+          [
+            "ACTE3_01_FRONTIERE_3",
+            "O"
+          ],
+          [
+            "ACTE3_02_SAUVETAGE",
+            "B"
+          ],
+          [
+            "LYRA_INDICE_1",
+            "NEXT"
+          ],
+          [
+            "ACTE3_03_LA_SIRENE",
+            "B"
+          ],
+          [
+            "LYRA_VERITE",
+            "A"
+          ],
+          [
+            "ACTE3_03B_RESISTANCE",
+            "A"
+          ],
+          [
+            "ACTE3_04_ENVOUTEMENT",
+            "O"
+          ],
+          [
+            "ACTE3_05_FIEVRE",
+            "A"
+          ],
+          [
+            "ACTE3_06_REVEIL_TORDU",
+            "A"
+          ],
+          [
+            "ACTE3_07_BRISER_LA_GLACE",
+            "A"
+          ],
+          [
+            "ACTE3_08_MISE_AU_POINT",
+            "O_KISS"
+          ],
+          [
+            "ACTE3_09_ENTREE_SANCTUAIRE",
+            "ENTRER"
+          ],
+          [
+            "ACTE3_09B_BIVOUAC_TEMPETE",
+            "AVANCER"
+          ],
+          [
+            "SERAPHINE_INTRO",
+            "D"
+          ],
+          [
+            "JOUTE_E_2",
+            "A"
+          ],
+          [
+            "ACTE3_SILAS_CAMEO",
+            "NEXT"
+          ],
+          [
+            "ACTE3_09_VILLAGE_CACHE",
+            "A"
+          ],
+          [
+            "ORAYA_INDICE_1",
+            "NEXT"
+          ],
+          [
+            "ACTE3_10_ACCUEIL_CULTE_1",
+            "S"
+          ],
+          [
+            "ACTE3_11_JUGEMENT",
+            "O"
+          ],
+          [
+            "ACTE3_11_PRISON_ECHANGE",
+            "SUIVRE"
+          ],
+          [
+            "ORAYA_INDICE_2",
+            "NEXT"
+          ],
+          [
+            "ACTE3_12_AUTEL_KALTHAR",
+            "A"
+          ],
+          [
+            "FRAGMENT_3_TRAHISON",
+            "A"
+          ],
+          [
+            "FRAGMENT_3_REVEIL",
+            "NEXT"
+          ],
+          [
+            "ORAYA_INDICE_3",
+            "NEXT"
+          ],
+          [
+            "ACTE3_13_ARTEFACT",
+            "A"
+          ],
+          [
+            "ACTE4_01_DEPART_VILLAGE",
+            "A"
+          ],
+          [
+            "ACTE4_01_HALTE_DOME",
+            "AVANCER"
+          ],
+          [
+            "ACTE4_02_CHOIX_CHAMBRE",
+            "O"
+          ],
+          [
+            "ACTE4_03_SPICY_KAELEN",
+            "B"
+          ],
+          [
+            "ACTE4_05_ARRIVEE_PORTES_1",
+            "NEXT"
+          ],
+          [
+            "ACTE4_06_MASQUE_TOMBE_1",
+            "KNEW"
+          ],
+          [
+            "ACTE4_06_MASQUE_TOMBE_2",
+            "REDEEM"
+          ],
+          [
+            "ACTE4_06_OMBRE_AVEU",
+            "TRUST"
+          ],
+          [
+            "FRAGMENT_4_STELE",
+            "A"
+          ],
+          [
+            "FRAGMENT_4_RETOUR",
+            "NEXT"
+          ],
+          [
+            "ORAYA_CONFRONTATION",
+            "C"
+          ],
+          [
+            "ACTE4_08_CORRIDOR_OBSIDIENNE",
+            "PENETRER"
+          ],
+          [
+            "ACTE4_08_SEUIL_ETERNITE",
+            "E"
+          ],
+          [
+            "ACTE4_09_TRONE_EBENE",
+            "FIN_ECLAIREUR"
           ]
         ]
       },
@@ -4920,220 +4920,212 @@
         66,
         69,
         96,
-        72,
-        70,
-        78,
-        110,
-        54,
-        99,
-        103,
-        72,
-        114,
-        107,
-        59,
-        65,
-        72,
-        53,
-        70,
         108,
-        67,
-        54,
-        110,
-        117,
-        102,
-        65,
-        60,
-        73,
-        99,
-        70,
-        111,
-        77,
-        103,
-        71,
-        99,
-        55,
-        61,
-        75,
-        57,
-        90,
-        73,
-        68,
-        59,
-        60,
-        66,
-        87,
-        55,
-        97,
-        65,
-        74,
-        101,
-        40,
-        59,
-        76,
-        69,
-        98,
-        75,
-        64,
-        110,
-        54,
-        110,
-        73,
-        52,
-        69,
-        104,
-        40,
-        101,
-        96,
-        78,
-        69,
-        107,
         95,
-        107,
-        76,
-        55,
-        110,
-        53,
-        107,
-        74,
-        60,
-        96,
-        100,
-        69,
-        53,
-        52,
-        104,
-        108,
-        91,
-        78,
-        75,
-        61,
-        54,
-        66,
-        73,
-        75,
-        55,
-        75,
-        103,
-        77,
         59,
-        92,
-        108,
-        65,
-        75,
-        103,
-        83,
-        67,
-        69,
-        52,
-        95,
-        103,
-        75,
-        81,
-        73,
-        68,
-        67,
-        104,
-        74,
-        69,
-        101,
-        72,
-        82,
-        84,
-        74,
-        62,
-        96,
-        75,
-        100,
-        110,
-        77,
-        104,
-        105,
-        103,
-        73,
-        70,
-        71,
-        62,
-        63,
-        73,
-        36,
-        97,
-        75,
-        53,
-        92,
-        66,
-        102,
-        108,
-        67,
-        61,
         77,
         56,
-        98,
-        81,
-        75,
+        82,
+        65,
+        79,
+        82,
+        67,
         70,
+        112,
+        67,
+        95,
+        70,
+        65,
+        81,
+        97,
         110,
-        62,
-        96,
-        72,
-        113,
-        63,
-        55,
-        75,
-        66,
-        109,
-        109,
-        69,
+        76,
+        70,
+        108,
         67,
-        99,
-        103,
-        111,
-        96,
-        66,
-        55,
-        109,
-        102,
-        100,
         60,
-        105,
-        102,
-        73,
-        107,
-        109,
-        67,
-        62,
-        69,
-        68,
-        54,
-        73,
-        98,
+        63,
+        101,
+        53,
+        70,
+        74,
+        48,
+        96,
+        110,
+        58,
         104,
         72,
-        69,
-        64,
-        68,
-        112,
-        66,
-        79,
-        106,
-        52,
-        55,
-        89,
-        63,
-        63,
-        61,
-        107,
-        112,
-        78,
-        77,
-        101,
-        105,
-        58,
-        99,
-        105,
-        105,
-        95,
+        108,
         71,
+        82,
+        74,
+        97,
+        60,
+        76,
+        55,
+        97,
+        65,
+        74,
+        101,
+        104,
+        78,
+        62,
+        98,
+        75,
         64,
+        110,
+        54,
+        110,
+        55,
+        111,
+        67,
+        78,
+        98,
+        67,
+        74,
+        98,
+        55,
+        72,
+        100,
+        78,
+        64,
+        94,
+        109,
+        103,
+        107,
+        106,
+        101,
+        102,
+        70,
+        70,
+        70,
+        105,
+        117,
+        103,
+        67,
+        95,
+        59,
+        99,
+        106,
+        71,
+        75,
+        73,
+        94,
+        94,
+        94,
+        65,
+        52,
+        116,
+        49,
+        61,
+        70,
+        49,
+        74,
+        117,
+        107,
+        54,
+        108,
+        66,
+        53,
+        104,
+        108,
+        97,
+        59,
+        101,
+        40,
+        102,
+        77,
+        68,
+        94,
+        77,
+        73,
+        92,
+        71,
+        113,
+        50,
+        110,
+        123,
+        64,
+        51,
+        75,
+        39,
+        66,
+        98,
+        79,
+        66,
+        67,
+        115,
+        109,
+        97,
+        65,
+        54,
+        102,
+        54,
+        113,
+        76,
+        109,
+        101,
+        55,
+        100,
+        100,
+        65,
+        106,
+        98,
+        97,
+        116,
+        69,
+        113,
+        75,
+        66,
+        77,
+        109,
+        91,
+        105,
+        76,
+        66,
+        55,
+        113,
+        98,
+        100,
+        76,
+        104,
+        68,
+        109,
+        77,
+        94,
+        70,
+        71,
+        104,
+        65,
+        51,
+        99,
+        100,
+        96,
+        112,
+        77,
+        81,
+        68,
+        102,
+        67,
+        110,
+        101,
+        104,
+        63,
+        97,
+        73,
+        112,
+        71,
+        101,
+        90,
+        111,
+        63,
+        70,
+        99,
+        102,
+        74,
+        70,
+        73,
+        72,
         67,
         66,
         102,
@@ -5158,58 +5150,182 @@
         66,
         67,
         76,
-        64,
-        104,
-        55,
-        63,
-        42,
-        62,
-        58,
         68,
+        110,
+        108,
+        62,
+        65,
+        71,
+        114,
+        108,
+        70,
+        78,
+        101,
+        101,
+        71,
+        78,
         72,
-        99,
+        108,
+        71,
+        71,
+        97,
+        101,
         75,
-        104,
-        100,
-        74,
-        52,
-        112,
+        110,
+        98,
+        107,
         74,
         111,
         63,
-        105,
+        116,
+        101,
+        102,
+        58,
+        56,
+        71,
+        101,
         106,
-        87,
-        62,
-        108,
-        99,
-        95,
-        99,
-        62,
-        48,
-        99,
-        106,
-        110,
-        72,
         70,
-        102,
-        55,
-        68,
-        74,
-        104,
-        102,
-        104,
-        102,
-        111
+        71,
+        116,
+        71,
+        107,
+        63,
+        70,
+        51,
+        73,
+        70,
+        103,
+        98,
+        64,
+        73,
+        93,
+        70
       ]
     },
     "ngplus": {
       "runs": 350,
       "endings": {
-        "NG_FIN_CYCLE": [
+        "NG_FIN_DEUX_MAINS": [
+          [
+            "NGP_01_SEUIL",
+            "MEMOIRE"
+          ],
+          [
+            "NGP_02_NEUF_ECHOS",
+            "TRONE"
+          ],
+          [
+            "NGP_03_PALAIS_ECHO",
+            "COLERE"
+          ],
+          [
+            "NGP_04_FRESQUE_REPRISE",
+            "FEN"
+          ],
+          [
+            "NGP_05_CONFRERIE",
+            "LIBERTE"
+          ],
+          [
+            "NGP_05C_CENDRES",
+            "DETRUIRE"
+          ],
+          [
+            "NGP_06_DEUX_PORTES",
+            "BOTH"
+          ],
+          [
+            "NGP_09_DEUX_ECHOS",
+            "NONE"
+          ],
+          [
+            "NGP_10_ORAYA",
+            "QUESTION"
+          ],
+          [
+            "NGP_11_LYRA",
+            "SILENCE"
+          ],
+          [
+            "NGP_12_FEN",
+            "REFUSE"
+          ],
+          [
+            "NGP_13_BRASIER",
+            "MORTEL"
+          ],
+          [
+            "NGP_14_TRONE_BRIS",
+            "SACRIFICE"
+          ],
+          [
+            "NGP_15_DERNIER_CHOIX",
+            "THRONE"
+          ]
+        ],
+        "NG_FIN_VIDE": [
           [
             "NGP_01_SEUIL",
             "FEN"
+          ],
+          [
+            "NGP_02_NEUF_ECHOS",
+            "SILENCE"
+          ],
+          [
+            "NGP_03_PALAIS_ECHO",
+            "PARDON"
+          ],
+          [
+            "NGP_04_FRESQUE_REPRISE",
+            "GEL"
+          ],
+          [
+            "NGP_05_CONFRERIE",
+            "ECLAIREUR"
+          ],
+          [
+            "NGP_05B_SCEAU",
+            "ROMPRE"
+          ],
+          [
+            "NGP_06_DEUX_PORTES",
+            "O"
+          ],
+          [
+            "NGP_07_KAELEN_ECHO",
+            "DISTANCE"
+          ],
+          [
+            "NGP_10_ORAYA",
+            "SILENCE"
+          ],
+          [
+            "NGP_11_LYRA",
+            "POUVOIR"
+          ],
+          [
+            "NGP_12_FEN",
+            "SILENCE"
+          ],
+          [
+            "NGP_13_BRASIER",
+            "GEL"
+          ],
+          [
+            "NGP_14_TRONE_BRIS",
+            "TRANSFORM"
+          ],
+          [
+            "NGP_15_DERNIER_CHOIX",
+            "VOID"
+          ]
+        ],
+        "NG_FIN_LIBERATION": [
+          [
+            "NGP_01_SEUIL",
+            "MEMOIRE"
           ],
           [
             "NGP_02_NEUF_ECHOS",
@@ -5229,7 +5345,119 @@
           ],
           [
             "NGP_05C_CENDRES",
-            "ARCHIVER"
+            "DETRUIRE"
+          ],
+          [
+            "NGP_06_DEUX_PORTES",
+            "O"
+          ],
+          [
+            "NGP_07_KAELEN_ECHO",
+            "KISS"
+          ],
+          [
+            "NGP_10_ORAYA",
+            "PUNIR"
+          ],
+          [
+            "NGP_11_LYRA",
+            "LIBERER"
+          ],
+          [
+            "NGP_12_FEN",
+            "SILENCE"
+          ],
+          [
+            "NGP_13_BRASIER",
+            "POSSESSION"
+          ],
+          [
+            "NGP_14_TRONE_BRIS",
+            "DESTROY"
+          ],
+          [
+            "NGP_15_DERNIER_CHOIX",
+            "FINAL"
+          ]
+        ],
+        "NG_FIN_FRONTIERE": [
+          [
+            "NGP_01_SEUIL",
+            "FEN"
+          ],
+          [
+            "NGP_02_NEUF_ECHOS",
+            "SILENCE"
+          ],
+          [
+            "NGP_03_PALAIS_ECHO",
+            "COLERE"
+          ],
+          [
+            "NGP_04_FRESQUE_REPRISE",
+            "GEL"
+          ],
+          [
+            "NGP_05_CONFRERIE",
+            "LIBERTE"
+          ],
+          [
+            "NGP_05C_CENDRES",
+            "DETRUIRE"
+          ],
+          [
+            "NGP_06_DEUX_PORTES",
+            "E"
+          ],
+          [
+            "NGP_08_ALISTAIR_ECHO",
+            "DISTANCE"
+          ],
+          [
+            "NGP_10_ORAYA",
+            "PUNIR"
+          ],
+          [
+            "NGP_11_LYRA",
+            "CHANT"
+          ],
+          [
+            "NGP_12_FEN",
+            "SILENCE"
+          ],
+          [
+            "NGP_13_BRASIER",
+            "GEL"
+          ],
+          [
+            "NGP_14_TRONE_BRIS",
+            "SACRIFICE"
+          ],
+          [
+            "NGP_15_DERNIER_CHOIX",
+            "FRONTIERE"
+          ]
+        ],
+        "NG_FIN_AMOUR": [
+          [
+            "NGP_01_SEUIL",
+            "MEMOIRE"
+          ],
+          [
+            "NGP_02_NEUF_ECHOS",
+            "TRONE"
+          ],
+          [
+            "NGP_03_PALAIS_ECHO",
+            "PROMESSE"
+          ],
+          [
+            "NGP_04_FRESQUE_REPRISE",
+            "BRISER"
+          ],
+          [
+            "NGP_05_CONFRERIE",
+            "TRIANGLE"
           ],
           [
             "NGP_06_DEUX_PORTES",
@@ -5241,11 +5469,65 @@
           ],
           [
             "NGP_07B_PAS",
-            "AMI"
+            "EGAL"
           ],
           [
             "NGP_10_ORAYA",
-            "SILENCE"
+            "PARDON"
+          ],
+          [
+            "NGP_11_LYRA",
+            "POUVOIR"
+          ],
+          [
+            "NGP_12_FEN",
+            "REFUSE"
+          ],
+          [
+            "NGP_13_BRASIER",
+            "LIBERTE"
+          ],
+          [
+            "NGP_14_TRONE_BRIS",
+            "TRANSFORM"
+          ],
+          [
+            "NGP_15_DERNIER_CHOIX",
+            "LOVE"
+          ]
+        ],
+        "NG_FIN_CYCLE": [
+          [
+            "NGP_01_SEUIL",
+            "COURONNE"
+          ],
+          [
+            "NGP_02_NEUF_ECHOS",
+            "KALTHAR"
+          ],
+          [
+            "NGP_03_PALAIS_ECHO",
+            "PARDON"
+          ],
+          [
+            "NGP_04_FRESQUE_REPRISE",
+            "FEN"
+          ],
+          [
+            "NGP_05_CONFRERIE",
+            "LIBERTE"
+          ],
+          [
+            "NGP_05C_CENDRES",
+            "ARCHIVER"
+          ],
+          [
+            "NGP_06_DEUX_PORTES",
+            "NONE"
+          ],
+          [
+            "NGP_10_ORAYA",
+            "PARDON"
           ],
           [
             "NGP_11_LYRA",
@@ -5267,352 +5549,24 @@
             "NGP_15_DERNIER_CHOIX",
             "CYCLE"
           ]
-        ],
-        "NG_FIN_VIDE": [
-          [
-            "NGP_01_SEUIL",
-            "COURONNE"
-          ],
-          [
-            "NGP_02_NEUF_ECHOS",
-            "AMOUR"
-          ],
-          [
-            "NGP_03_PALAIS_ECHO",
-            "PARDON"
-          ],
-          [
-            "NGP_04_FRESQUE_REPRISE",
-            "FEN"
-          ],
-          [
-            "NGP_05_CONFRERIE",
-            "TRIANGLE"
-          ],
-          [
-            "NGP_06_DEUX_PORTES",
-            "NONE"
-          ],
-          [
-            "NGP_10_ORAYA",
-            "PARDON"
-          ],
-          [
-            "NGP_11_LYRA",
-            "LIBERER"
-          ],
-          [
-            "NGP_12_FEN",
-            "LETTING_GO"
-          ],
-          [
-            "NGP_13_BRASIER",
-            "MORTEL"
-          ],
-          [
-            "NGP_14_TRONE_BRIS",
-            "SACRIFICE"
-          ],
-          [
-            "NGP_15_DERNIER_CHOIX",
-            "VOID"
-          ]
-        ],
-        "NG_FIN_DEUX_MAINS": [
-          [
-            "NGP_01_SEUIL",
-            "MEMOIRE"
-          ],
-          [
-            "NGP_02_NEUF_ECHOS",
-            "KALTHAR"
-          ],
-          [
-            "NGP_03_PALAIS_ECHO",
-            "COLERE"
-          ],
-          [
-            "NGP_04_FRESQUE_REPRISE",
-            "DETTE"
-          ],
-          [
-            "NGP_05_CONFRERIE",
-            "TRIANGLE"
-          ],
-          [
-            "NGP_06_DEUX_PORTES",
-            "BOTH"
-          ],
-          [
-            "NGP_09_DEUX_ECHOS",
-            "NONE"
-          ],
-          [
-            "NGP_10_ORAYA",
-            "SILENCE"
-          ],
-          [
-            "NGP_11_LYRA",
-            "LIBERER"
-          ],
-          [
-            "NGP_12_FEN",
-            "SILENCE"
-          ],
-          [
-            "NGP_13_BRASIER",
-            "POSSESSION"
-          ],
-          [
-            "NGP_14_TRONE_BRIS",
-            "KEEP"
-          ],
-          [
-            "NGP_15_DERNIER_CHOIX",
-            "THRONE"
-          ]
-        ],
-        "NG_FIN_AMOUR": [
-          [
-            "NGP_01_SEUIL",
-            "COURONNE"
-          ],
-          [
-            "NGP_02_NEUF_ECHOS",
-            "KALTHAR"
-          ],
-          [
-            "NGP_03_PALAIS_ECHO",
-            "COLERE"
-          ],
-          [
-            "NGP_04_FRESQUE_REPRISE",
-            "FEN"
-          ],
-          [
-            "NGP_05_CONFRERIE",
-            "ECLAIREUR"
-          ],
-          [
-            "NGP_05B_SCEAU",
-            "ROMPRE"
-          ],
-          [
-            "NGP_06_DEUX_PORTES",
-            "O"
-          ],
-          [
-            "NGP_07_KAELEN_ECHO",
-            "KISS"
-          ],
-          [
-            "NGP_10_ORAYA",
-            "PUNIR"
-          ],
-          [
-            "NGP_11_LYRA",
-            "SILENCE"
-          ],
-          [
-            "NGP_12_FEN",
-            "ASK"
-          ],
-          [
-            "NGP_13_BRASIER",
-            "POSSESSION"
-          ],
-          [
-            "NGP_14_TRONE_BRIS",
-            "TRANSFORM"
-          ],
-          [
-            "NGP_15_DERNIER_CHOIX",
-            "LOVE"
-          ]
-        ],
-        "NG_FIN_LIBERATION": [
-          [
-            "NGP_01_SEUIL",
-            "REFUS"
-          ],
-          [
-            "NGP_02_NEUF_ECHOS",
-            "SILENCE"
-          ],
-          [
-            "NGP_03_PALAIS_ECHO",
-            "PROMESSE"
-          ],
-          [
-            "NGP_04_FRESQUE_REPRISE",
-            "BRISER"
-          ],
-          [
-            "NGP_05_CONFRERIE",
-            "ECLAIREUR"
-          ],
-          [
-            "NGP_05B_SCEAU",
-            "EXPLIQUER"
-          ],
-          [
-            "NGP_06_DEUX_PORTES",
-            "O"
-          ],
-          [
-            "NGP_07_KAELEN_ECHO",
-            "KISS"
-          ],
-          [
-            "NGP_10_ORAYA",
-            "QUESTION"
-          ],
-          [
-            "NGP_11_LYRA",
-            "CHANT"
-          ],
-          [
-            "NGP_12_FEN",
-            "SILENCE"
-          ],
-          [
-            "NGP_13_BRASIER",
-            "POSSESSION"
-          ],
-          [
-            "NGP_14_TRONE_BRIS",
-            "TRANSFORM"
-          ],
-          [
-            "NGP_15_DERNIER_CHOIX",
-            "FINAL"
-          ]
-        ],
-        "NG_FIN_FRONTIERE": [
-          [
-            "NGP_01_SEUIL",
-            "FEN"
-          ],
-          [
-            "NGP_02_NEUF_ECHOS",
-            "AMOUR"
-          ],
-          [
-            "NGP_03_PALAIS_ECHO",
-            "COLERE"
-          ],
-          [
-            "NGP_04_FRESQUE_REPRISE",
-            "BRISER"
-          ],
-          [
-            "NGP_05_CONFRERIE",
-            "ECLAIREUR"
-          ],
-          [
-            "NGP_05B_SCEAU",
-            "ROMPRE"
-          ],
-          [
-            "NGP_06_DEUX_PORTES",
-            "NONE"
-          ],
-          [
-            "NGP_10_ORAYA",
-            "PUNIR"
-          ],
-          [
-            "NGP_11_LYRA",
-            "CHANT"
-          ],
-          [
-            "NGP_12_FEN",
-            "LETTING_GO"
-          ],
-          [
-            "NGP_13_BRASIER",
-            "GEL"
-          ],
-          [
-            "NGP_14_TRONE_BRIS",
-            "TRANSFORM"
-          ],
-          [
-            "NGP_15_DERNIER_CHOIX",
-            "FRONTIERE"
-          ]
         ]
       },
       "errors": [],
       "steps": [
-        15,
-        12,
-        13,
-        13,
-        13,
-        14,
-        13,
-        15,
         14,
         14,
-        12,
-        15,
         14,
+        14,
+        14,
+        14,
+        13,
         13,
         15,
-        14,
-        14,
-        14,
-        14,
-        13,
-        14,
-        14,
-        13,
-        14,
-        14,
-        12,
-        13,
-        14,
-        14,
-        13,
-        13,
-        14,
-        14,
-        13,
-        14,
-        13,
-        14,
-        14,
-        14,
-        14,
-        15,
-        14,
-        14,
-        13,
-        14,
-        14,
-        14,
-        14,
-        13,
         13,
         13,
         14,
         14,
         14,
-        14,
-        13,
-        14,
-        13,
-        14,
-        14,
-        14,
-        13,
-        14,
-        13,
-        13,
-        13,
-        14,
-        13,
         12,
         13,
         14,
@@ -5894,7 +5848,61 @@
         14,
         13,
         14,
-        13
+        13,
+        14,
+        14,
+        14,
+        13,
+        13,
+        14,
+        15,
+        14,
+        14,
+        13,
+        14,
+        13,
+        15,
+        14,
+        14,
+        14,
+        14,
+        15,
+        14,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        14,
+        14,
+        13,
+        14,
+        14,
+        14,
+        14,
+        13,
+        13,
+        14,
+        13,
+        14,
+        13,
+        13,
+        13,
+        13,
+        13,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        15,
+        15,
+        13,
+        14,
+        14
       ]
     }
   },
