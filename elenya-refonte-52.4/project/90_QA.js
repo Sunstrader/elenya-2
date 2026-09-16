@@ -609,7 +609,7 @@ function serverRunDeferredRomanceQA(){
 
 function serverRunAct1PayoffContinuityQA(){
   const errors=[],warnings=[];
-  if(String(BUILD_VERSION)!=='52.4.0-rc3-audio') errors.push('version');
+  if(String(BUILD_VERSION)!=='52.4.3-free-voice') errors.push('version');
   const triChoices=(DB['ACTE1_07_RETROUVAILLES']?.choices||[]);
   const triTargets=triChoices.map(c=>c.next);
   if(triTargets.filter(n=>n==='ACTE1_07B_REACTION_TRIANGULATION').length < 3)
@@ -630,7 +630,7 @@ function serverRunAct1PayoffContinuityQA(){
 function serverRunAct1PlaytestFixQA(){
   const errors=[],warnings=[];
   const src=(id)=>_sceneSourceForQA(DB[id]);
-  if(String(BUILD_VERSION)!=='52.4.0-rc3-audio')errors.push('version');
+  if(String(BUILD_VERSION)!=='52.4.3-free-voice')errors.push('version');
   ['ACTE1_05B_REVEIL_BIVOUAC','ACTE1_05C_JALOUSIE_SOUTERRAINE'].forEach(id=>{
     const s=src(id);
     if(!s.includes("gs.hasFlag('avec_ombre')")||!s.includes("gs.hasFlag('avec_eclaireur')"))errors.push(id+' sprites non conditionnels');
@@ -648,7 +648,7 @@ function serverRunAct1PlaytestFixQA(){
 
 function serverRunNarrativeVoicePolishQA(){
   const errors=[],warnings=[];
-  if(String(BUILD_VERSION)!=='52.4.0-rc3-audio')errors.push('version');
+  if(String(BUILD_VERSION)!=='52.4.3-free-voice')errors.push('version');
   const alistair=[DB['R_E_1'],DB['LIEN_E_2_CONFIDENCE'],DB['JOUTE_E_2']].map(_sceneSourceForQA).join('\n');
   ['clé','insigne','porte'].forEach(x=>{if(!alistair.toLowerCase().includes(x))warnings.push('motif Alistair peu visible: '+x);});
   const dE=DB['ROMANCE_DEFERRED_ALISTAIR'], dO=DB['ROMANCE_DEFERRED_KAELEN'];
@@ -691,8 +691,8 @@ function serverRunEnginePolishQA() {
   if(!ie.includes('choice.target')) errors.push('inferChoiceEchoes sans choice.target');
   if(String(secondaryStage).includes('corona_indice_1')) errors.push('corona_indice_1 encore actif');
   if(!String(decrementTimers).includes('timeCost')) errors.push('decrementTimers sans timeCost');
-  if(String(BUILD_VERSION)!=='52.4.0-rc3-audio') errors.push('BUILD_VERSION incorrect');
-  if(!String(ENGINE_LABEL).includes('V52.4.0-rc3-audio')) errors.push('ENGINE_LABEL incorrect');
+  if(String(BUILD_VERSION)!=='52.4.3-free-voice') errors.push('BUILD_VERSION incorrect');
+  if(!String(ENGINE_LABEL).includes('V52.4.3-free-voice')) errors.push('ENGINE_LABEL incorrect');
 
   // Vérification directe de la sémantique du venin.
   const a={timers:{venin:3}}; decrementTimers(a,'X','Y',0); if(a.timers.venin!==3) errors.push('timeCost 0 consomme le venin');
@@ -967,8 +967,8 @@ function serverRunV5203AIAuditFixQA() {
   const classic = (typeof DB !== 'undefined' ? DB : {});
 
   try {
-    if (String(BUILD_VERSION) !== '52.4.0-rc3-audio') errors.push('BUILD_VERSION != 52.4.0-rc3-audio');
-    if (!String(ENGINE_LABEL || '').includes('V52.4.0-rc3-audio')) errors.push('ENGINE_LABEL non V52.4.0-rc3-audio');
+    if (String(BUILD_VERSION) !== '52.4.3-free-voice') errors.push('BUILD_VERSION != 52.4.3-free-voice');
+    if (!String(ENGINE_LABEL || '').includes('V52.4.3-free-voice')) errors.push('ENGINE_LABEL non V52.4.3-free-voice');
 
     const wake = classic.ACTE1_01_REVEIL || {};
     const wakeChoices = Array.isArray(wake.choices) ? wake.choices : [];
@@ -1140,7 +1140,7 @@ function serverRunV5220UltimateQA() {
     addFlag: () => {}, hasItem: () => false, getRep: () => 0,
     hasOriginEnd: () => false, getLastClassicEnding: () => null
   };
-  if (String(BUILD_VERSION) !== '52.4.0-rc3-audio') errors.push('Version de livraison incorrecte');
+  if (String(BUILD_VERSION) !== '52.4.3-free-voice') errors.push('Version de livraison incorrecte');
   if (Object.keys(all).length !== 247) errors.push('Inventaire attendu : 242 scènes historiques + 5 branches NG+');
   Object.keys(all).forEach(id => {
     const scene = all[id] || {};

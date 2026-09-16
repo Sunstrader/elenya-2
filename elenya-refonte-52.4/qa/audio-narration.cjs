@@ -20,7 +20,7 @@ const ctx=vm.createContext({console,JSON,Date,Math,Set,Map,Promise,document,loca
   syncKnownAchievementsBaseline(){},hideSaveModal(){},renderSceneDataFromServer(){},refreshMainMenu(){},alert(){},
   FileReader:class { readAsText(file){ this.onload({target:{result:file.text}}); } }
 });
-vm.runInContext(source.slice(source.indexOf('const RF ='),source.indexOf('const originalRender='))+'\nglobalThis.rf=RF;',ctx);
+vm.runInContext(source.slice(source.indexOf('function segmentNarrative'),source.indexOf('const originalRender='))+'\nglobalThis.rf=RF;',ctx);
 const rf=ctx.rf;
 
 vm.runInContext(main.slice(main.indexOf('function setBgmVolume('),main.indexOf('(function initParticles()')),ctx);

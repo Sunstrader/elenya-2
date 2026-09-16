@@ -1,5 +1,5 @@
 {
-  "version": "52.4.0-rc3-audio",
+  "version": "52.4.3-free-voice",
   "environment": "Node VM ; services Google simulés, sans navigateur réel",
   "checks": [
     "Syntaxe de tous les scripts et des scripts HTML",

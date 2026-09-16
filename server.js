@@ -1,26 +1,18 @@
-const express = require('express');
+'use strict';
+
+const http = require('node:http');
 const path = require('node:path');
 const fs = require('node:fs');
-const { GoogleGenAI } = require('@google/genai');
+const { URL } = require('node:url');
 const { createIsolatedEngine } = require('./elenya-refonte-52.4/qa/engine.cjs');
 
-const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 3000);
+const HOST = '0.0.0.0';
+const ROOT = __dirname;
+const projectRoot = path.join(ROOT, 'elenya-refonte-52.4/project');
+const assetsRoot = path.join(ROOT, 'elenya-refonte-52.4/assets');
+const docsRoot = path.join(ROOT, 'elenya-refonte-52.4/docs');
 
-// Protection et parsing limité
-app.use(express.json({ limit: '1mb' }));
-
-// Bloquer l'accès direct aux fichiers sensibles
-app.use((req, res, next) => {
-  const p = req.path.toLowerCase();
-  if (p.includes('.env') || p.includes('.git') || p.endsWith('.zip') || p.startsWith('/qa') || p.includes('..')) {
-    return res.status(403).json({ ok: false, error: 'Accès interdit' });
-  }
-  next();
-});
-
-// Moteur GAS local via contextes isolés stateless par requête
-const projectRoot = path.join(__dirname, 'elenya-refonte-52.4/project');
 let isolatedEngine = null;
 try {
   isolatedEngine = createIsolatedEngine(projectRoot);
@@ -28,222 +20,6 @@ try {
   console.warn('Moteur local isolé non initialisé:', e.message);
 }
 
-// Convertisseur PCM 16-bit 24kHz mono -> WAV
-function pcmToWav(pcmBuffer, sampleRate = 24000, numChannels = 1) {
-  const wav = Buffer.alloc(44 + pcmBuffer.length);
-  wav.write('RIFF', 0);
-  wav.writeUInt32LE(36 + pcmBuffer.length, 4);
-  wav.write('WAVE', 8);
-  wav.write('fmt ', 12);
-  wav.writeUInt32LE(16, 16);
-  wav.writeUInt16LE(1, 20); // PCM format
-  wav.writeUInt16LE(numChannels, 22);
-  wav.writeUInt32LE(sampleRate, 24);
-  wav.writeUInt32LE(sampleRate * numChannels * 2, 28);
-  wav.writeUInt16LE(numChannels * 2, 32);
-  wav.writeUInt16LE(16, 34);
-  wav.write('data', 36);
-  wav.writeUInt32LE(pcmBuffer.length, 40);
-  pcmBuffer.copy(wav, 44);
-  return wav;
-}
-
-const STYLE_PROMPTS = {
-  fantasy: "Lis ce texte en français de France, comme une narration de livre audio de fantasy. Voix naturelle, posée et immersive. Débit légèrement lent, pauses souples entre les phrases, émotion retenue. Évite le ton publicitaire et la diction mécanique. Dans les dialogues, adapte subtilement l’intention du personnage. Respecte exactement le texte. Voix seule, sans musique ni bruitage.",
-  mystic: "Interprète le texte comme une présence ancienne qui confie un secret. Timbre naturel, intime et légèrement soufflé, sans forcer la gravité. Débit lent mais vivant, silences après les images fortes, tension discrète. Évite la monotonie, le chuchotement permanent et le ton de bande-annonce. Respecte exactement le texte. Voix seule, sans musique ni bruitage."
-};
-
-// 30 voix officielles Gemini TTS avec graphie exacte ('Iapetus' avec un I majuscule)
-const OFFICIAL_VOICE_IDS = new Set([
-  'Achernar', 'Achird', 'Algenib', 'Algieba', 'Alnilam', 'Aoede', 'Autonoe', 'Callirrhoe', 'Charon', 'Despina',
-  'Enceladus', 'Erinome', 'Fenrir', 'Gacrux', 'Iapetus', 'Kore', 'Laomedeia', 'Leda', 'Orus', 'Puck',
-  'Pulcherrima', 'Rasalgethi', 'Sadachbia', 'Sadaltager', 'Schedar', 'Sulafat', 'Umbriel', 'Vindemiatrix', 'Zephyr', 'Zubenelgenubi'
-]);
-
-// Phrase fixe d'aperçu pour tester les voix (19 mots, indépendante du scénario)
-const PREVIEW_SAMPLE_TEXT = "Sur les crêtes de givre, le vent murmure les légendes d'Elenya. Les cristaux d'éther s'illuminent dans la pénombre glaciale.";
-
-// Lazy Gemini client
-let geminiClients = null;
-let currentClientIndex = 0;
-
-function getGeminiClient() {
-  if (!geminiClients) {
-    const apiKeyStr = process.env.GEMINI_API_KEY_VOICE || process.env.GEMINI_API_KEY;
-    if (!apiKeyStr) {
-      throw new Error('GEMINI_API_KEY_VOICE non configurée');
-    }
-    const keys = apiKeyStr.split(',').map(k => k.trim()).filter(k => k);
-    if (keys.length === 0) {
-      throw new Error('Aucune clé valide trouvée dans GEMINI_API_KEY_VOICE');
-    }
-    geminiClients = keys.map(apiKey => new GoogleGenAI({ apiKey }));
-  }
-  const client = geminiClients[currentClientIndex];
-  currentClientIndex = (currentClientIndex + 1) % geminiClients.length;
-  return client;
-}
-
-// Limiteur de concurrence simple pour la synthèse vocale (max 2 requêtes simultanées)
-let activeTtsRequests = 0;
-const MAX_CONCURRENT_TTS = 2;
-const ttsQueue = [];
-
-function acquireTtsSlot() {
-  return new Promise((resolve, reject) => {
-    if (activeTtsRequests < MAX_CONCURRENT_TTS) {
-      activeTtsRequests++;
-      return resolve();
-    }
-    // File d'attente bornée
-    if (ttsQueue.length >= 8) {
-      return reject(new Error('QUEUE_FULL'));
-    }
-    const timeout = setTimeout(() => {
-      const idx = ttsQueue.findIndex(item => item.resolve === resolve);
-      if (idx !== -1) ttsQueue.splice(idx, 1);
-      reject(new Error('QUEUE_TIMEOUT'));
-    }, 45000);
-    ttsQueue.push({ resolve, timeout });
-  });
-}
-
-function releaseTtsSlot() {
-  activeTtsRequests = Math.max(0, activeTtsRequests - 1);
-  if (ttsQueue.length > 0) {
-    const next = ttsQueue.shift();
-    clearTimeout(next.timeout);
-    activeTtsRequests++;
-    next.resolve();
-  }
-}
-
-// Endpoint de narration vocale TTS
-app.post('/api/tts', async (req, res) => {
-  let slotAcquired = false;
-  try {
-    const { text, voice, style, isPreview } = req.body || {};
-
-    const finalText = isPreview
-      ? PREVIEW_SAMPLE_TEXT
-      : (typeof text === 'string' ? text.trim() : '');
-
-    if (!finalText) {
-      return res.status(400).json({ ok: false, code: 'INVALID_REQUEST', error: 'Texte manquant ou invalide' });
-    }
-
-    if (finalText.length > 3500) {
-      return res.status(400).json({
-        ok: false,
-        code: 'TEXT_TOO_LONG',
-        error: 'Le segment de texte dépasse la longueur maximale recommandée. Veuillez utiliser la segmentation narrative.'
-      });
-    }
-
-    const selectedVoice = OFFICIAL_VOICE_IDS.has(voice) ? voice : 'Charon';
-    const styleInstruction = STYLE_PROMPTS[style] || STYLE_PROMPTS.fantasy;
-    const fullPrompt = `${styleInstruction}\n\nTexte :\n${finalText}`;
-
-    let ai;
-    try {
-      ai = getGeminiClient();
-    } catch (err) {
-      return res.status(503).json({
-        ok: false,
-        code: 'NO_API_KEY',
-        error: 'Service de narration non configuré sur le serveur.'
-      });
-    }
-
-    try {
-      await acquireTtsSlot();
-      slotAcquired = true;
-    } catch (queueErr) {
-      return res.status(429).json({
-        ok: false,
-        code: 'SERVER_BUSY',
-        error: 'Le serveur est très sollicité. Réessaie dans quelques instants.'
-      });
-    }
-
-    // Timeout de génération (45s pour preview, 120s pour récit)
-    const timeoutMs = isPreview ? 45000 : 120000;
-    const controller = new AbortController();
-    const timeoutTimer = setTimeout(() => controller.abort(), timeoutMs);
-
-    // Annulation côté client si la connexion se ferme
-    req.on('close', () => {
-      clearTimeout(timeoutTimer);
-      controller.abort();
-    });
-
-    let response;
-    try {
-      response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-tts-preview',
-        contents: [{ parts: [{ text: fullPrompt }] }],
-        config: {
-          abortSignal: controller.signal,
-          responseModalities: ['AUDIO'],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: selectedVoice }
-            }
-          }
-        }
-      });
-    } finally {
-      clearTimeout(timeoutTimer);
-    }
-
-    const part = response.candidates?.[0]?.content?.parts?.[0];
-    const base64Audio = part?.inlineData?.data;
-
-    if (!base64Audio) {
-      return res.status(500).json({ ok: false, code: 'EMPTY_AUDIO', error: 'Aucune donnée audio générée' });
-    }
-
-    const pcmBuffer = Buffer.from(base64Audio, 'base64');
-    const wavBuffer = pcmToWav(pcmBuffer, 24000, 1);
-    const audioUrl = `data:audio/wav;base64,${wavBuffer.toString('base64')}`;
-
-    return res.json({
-      ok: true,
-      audioUrl,
-      voice: selectedVoice,
-      style: style || 'fantasy',
-      isPreview: !!isPreview
-    });
-  } catch (err) {
-    const msg = err && err.message ? err.message : String(err);
-    if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('Quota')) {
-      return res.status(429).json({
-        ok: false,
-        code: 'QUOTA_EXCEEDED',
-        error: 'Quota de synthèse vocale atteint. Réessaie dans quelques instants.'
-      });
-    }
-    if (msg.includes('abort') || msg.includes('aborted') || msg.includes('TIMEOUT')) {
-      return res.status(504).json({
-        ok: false,
-        code: 'TIMEOUT',
-        error: 'Le délai de génération vocale a expiré.'
-      });
-    }
-    console.error('Erreur synthèse vocale TTS:', msg);
-    return res.status(500).json({
-      ok: false,
-      code: 'GENERATION_ERROR',
-      error: 'Erreur lors de la génération vocale.'
-    });
-  } finally {
-    if (slotAcquired) {
-      releaseTtsSlot();
-    }
-  }
-});
-
-// Whitelist stricte des fonctions moteur autorisées
 const ALLOWED_GAS_METHODS = new Set([
   'serverGetMainMenu',
   'serverGetPendingScene',
@@ -257,47 +33,126 @@ const ALLOWED_GAS_METHODS = new Set([
   'serverRunAAAHealthCheck'
 ]);
 
-// Endpoint proxy sécurisé et stateless pour simuler google.script.run
-app.post('/api/gas/:functionName', (req, res) => {
-  if (!isolatedEngine) {
-    return res.status(503).json({ ok: false, error: 'Moteur local indisponible' });
-  }
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.webp': 'image/webp',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.mp4': 'video/mp4',
+  '.txt': 'text/plain; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8'
+};
 
-  const fnName = req.params.functionName;
-  if (!ALLOWED_GAS_METHODS.has(fnName)) {
-    return res.status(403).json({ ok: false, error: 'Opération non autorisée' });
-  }
+function sendJson(res, status, body) {
+  const data = Buffer.from(JSON.stringify(body));
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': data.length,
+    'Cache-Control': 'no-store'
+  });
+  res.end(data);
+}
 
-  const args = req.body?.args;
-  if (!Array.isArray(args)) {
-    return res.status(400).json({ ok: false, error: 'Format des arguments invalide' });
-  }
+function sendText(res, status, text, contentType = 'text/plain; charset=utf-8') {
+  const data = Buffer.from(text);
+  res.writeHead(status, {
+    'Content-Type': contentType,
+    'Content-Length': data.length,
+    'Cache-Control': 'no-store'
+  });
+  res.end(data);
+}
+
+function readJson(req, maxBytes = 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', chunk => {
+      size += chunk.length;
+      if (size > maxBytes) {
+        reject(Object.assign(new Error('Payload trop volumineux'), { statusCode: 413 }));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8') || '{}';
+        resolve(JSON.parse(raw));
+      } catch (_) {
+        reject(Object.assign(new Error('JSON invalide'), { statusCode: 400 }));
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+function safeStaticPath(base, relativePath) {
+  let decoded;
+  try { decoded = decodeURIComponent(relativePath); } catch (_) { return null; }
+  if (decoded.includes('\0') || decoded.includes('..') || decoded.toLowerCase().includes('.env') || decoded.toLowerCase().includes('.git') || decoded.toLowerCase().endsWith('.zip')) return null;
+  const absolute = path.resolve(base, decoded.replace(/^\/+/, ''));
+  const normalizedBase = path.resolve(base) + path.sep;
+  if (absolute !== path.resolve(base) && !absolute.startsWith(normalizedBase)) return null;
+  return absolute;
+}
+
+function serveStatic(res, base, relativePath) {
+  const filePath = safeStaticPath(base, relativePath);
+  if (!filePath) return sendJson(res, 403, { ok: false, error: 'Accès interdit' });
+  let stat;
+  try { stat = fs.statSync(filePath); } catch (_) { return sendText(res, 404, 'Introuvable'); }
+  if (!stat.isFile()) return sendText(res, 404, 'Introuvable');
+  const type = MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
+  res.writeHead(200, {
+    'Content-Type': type,
+    'Content-Length': stat.size,
+    'Cache-Control': /pack-manifest\.json$/i.test(filePath) ? 'no-store' : 'public, max-age=3600'
+  });
+  fs.createReadStream(filePath).pipe(res);
+}
+
+function getClientMeta(args) {
+  return (args[0] && typeof args[0] === 'object') ? args[0] : {};
+}
+
+function runGas(fnName, args) {
+  if (!isolatedEngine) return { status: 503, body: { ok: false, error: 'Moteur local indisponible' } };
+  if (!ALLOWED_GAS_METHODS.has(fnName)) return { status: 403, body: { ok: false, error: 'Opération non autorisée' } };
+  if (!Array.isArray(args)) return { status: 400, body: { ok: false, error: 'Format des arguments invalide' } };
 
   try {
-    // Traitement spécifique pour garantir l'isolation complète des utilisateurs :
     if (fnName === 'serverSaveGame') {
       const state = args[0];
       if (!state || typeof state !== 'object' || !state.currentSceneId) {
-        return res.json({ ok: true, result: { ok: false, error: 'État de sauvegarde invalide' } });
+        return { status: 200, body: { ok: true, result: { ok: false, error: 'État de sauvegarde invalide' } } };
       }
-      // Ne stocke rien dans un état partagé serveur : valide et informe le client
-      return res.json({ ok: true, result: { ok: true, localOnly: true } });
+      return { status: 200, body: { ok: true, result: { ok: true, localOnly: true } } };
     }
 
     if (fnName === 'serverLoadGame') {
-      // Les sauvegardes sont préservées de façon étanche dans le navigateur local du joueur
-      return res.json({ ok: true, result: { ok: false, localOnly: true, error: 'Sauvegardes gérées localement dans ce navigateur.' } });
+      return { status: 200, body: { ok: true, result: { ok: false, localOnly: true, error: 'Sauvegardes gérées localement dans ce navigateur.' } } };
     }
 
     if (fnName === 'serverGetMainMenu') {
-      const clientMeta = (args[0] && typeof args[0] === 'object') ? args[0] : {};
+      const clientMeta = getClientMeta(args);
       const required = [
         'ach_fin_ombre','ach_fin_eclaireur','ach_fin_poly','ach_fin_solo',
         'ach_fin_reconciliation','ach_fin_hiver','ach_fin_sacrifice','ach_fin_mortelle','ach_fin_brisee'
       ];
       const clientAchievements = Array.isArray(clientMeta.achievements) ? clientMeta.achievements : [];
       const unlocked = required.every(a => clientAchievements.includes(a));
-      const result = {
+      return { status: 200, body: { ok: true, result: {
         ngPlusUnlocked: unlocked,
         achievements: clientAchievements,
         globalFlags: Array.isArray(clientMeta.globalFlags) ? clientMeta.globalFlags : [],
@@ -305,12 +160,11 @@ app.post('/api/gas/:functionName', (req, res) => {
         ngPlusSave: null,
         classicEnds: required.filter(a => clientAchievements.includes(a)).length,
         classicEndsRequired: required.length
-      };
-      return res.json({ ok: true, result });
+      } } };
     }
 
     if (fnName === 'serverStartNewGamePlus') {
-      const clientMeta = (args[0] && typeof args[0] === 'object') ? args[0] : {};
+      const clientMeta = getClientMeta(args);
       const clientAchievements = Array.isArray(clientMeta.achievements) ? clientMeta.achievements : [];
       const required = [
         'ach_fin_ombre','ach_fin_eclaireur','ach_fin_poly','ach_fin_solo',
@@ -318,7 +172,7 @@ app.post('/api/gas/:functionName', (req, res) => {
       ];
       const unlocked = required.every(a => clientAchievements.includes(a));
       if (!unlocked) {
-        return res.json({ ok: true, result: { ok: false, error: 'NEW GAME+ verrouillé. Termine les 9 fins classiques requises.' } });
+        return { status: 200, body: { ok: true, result: { ok: false, error: 'NEW GAME+ verrouillé. Termine les 9 fins classiques requises.' } } };
       }
       const initialProps = new Map([
         ['elenya_globals', JSON.stringify({
@@ -327,42 +181,36 @@ app.post('/api/gas/:functionName', (req, res) => {
         })]
       ]);
       const rawRes = isolatedEngine.run('serverStartNewGamePlus', [], initialProps);
-      return res.json({ ok: true, result: rawRes });
+      return { status: 200, body: { ok: true, result: rawRes } };
     }
 
-    // serverProcessChoice et serverGetPendingScene s'exécutent dans un contexte isolé éphémère
+    if (fnName === 'serverGetBuildInfo') {
+      const result = isolatedEngine.run(fnName, args) || {};
+      result.version = '52.4.3-free-voice';
+      result.engine = 'Corona Glacialis — V52.4.3-free-voice · Full Voice Ready';
+      return { status: 200, body: { ok: true, result } };
+    }
+
     const result = isolatedEngine.run(fnName, args);
-    return res.json({ ok: true, result });
+    return { status: 200, body: { ok: true, result } };
   } catch (err) {
     console.error(`Erreur exécution isolée ${fnName}:`, err.message);
-    return res.status(500).json({ ok: false, error: 'Une erreur est survenue lors du traitement de la requête.' });
+    return { status: 500, body: { ok: false, error: 'Une erreur est survenue lors du traitement de la requête.' } };
   }
-});
+}
 
-// Servir les assets statiques autorisés
-app.use('/assets', express.static(path.join(__dirname, 'elenya-refonte-52.4/assets')));
-app.use('/docs', express.static(path.join(__dirname, 'elenya-refonte-52.4/docs')));
-app.use('/project', express.static(projectRoot));
+function assembleGameHtml() {
+  const builtIndex = path.join(ROOT, 'index.html');
+  if (fs.existsSync(builtIndex)) return fs.readFileSync(builtIndex, 'utf8');
 
-// Assemblage et service du visual novel V12_Jeu.html
-app.get(['/', '/index.html'], (req, res) => {
   const v12Path = path.join(projectRoot, 'V12_Jeu.html');
-  if (!fs.existsSync(v12Path)) {
-    return res.status(404).send('V12_Jeu.html introuvable');
-  }
-
+  if (!fs.existsSync(v12Path)) return null;
   let html = fs.readFileSync(v12Path, 'utf8');
-
-  // Remplacer <?!= include('FileName'); ?>
-  html = html.replace(/<\?!\s*=\s*include\('([^']+)'\);\s*\?>/g, (match, fileName) => {
+  html = html.replace(/<\?!\s*=\s*include\('([^']+)'\);\s*\?>/g, (_match, fileName) => {
     const filePath = path.join(projectRoot, `${fileName}.html`);
-    if (fs.existsSync(filePath)) {
-      return fs.readFileSync(filePath, 'utf8');
-    }
-    return `<!-- Fichier manquant: ${fileName} -->`;
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : `<!-- Fichier manquant: ${fileName} -->`;
   });
 
-  // Injecter le bridge google.script.run sécurisé
   const bridgeScript = `
 <script>
 (function() {
@@ -394,25 +242,19 @@ app.get(['/', '/index.html'], (req, res) => {
           .then(function(data) {
             if (data && data.ok) {
               if (successHandler) successHandler(data.result);
-            } else {
-              if (failureHandler) failureHandler(new Error((data && data.error) || 'Erreur requête'));
+            } else if (failureHandler) {
+              failureHandler(new Error((data && data.error) || 'Erreur requête'));
             }
           })
-          .catch(function(err) {
-            if (failureHandler) failureHandler(err);
-          });
+          .catch(function(err) { if (failureHandler) failureHandler(err); });
         };
       }
-      methods.forEach(function(m) {
-        runner[m] = createCaller(m);
-      });
+      methods.forEach(function(m) { runner[m] = createCaller(m); });
       if (typeof Proxy !== 'undefined') {
         return new Proxy(runner, {
           get: function(target, prop) {
             if (prop in target) return target[prop];
-            if (typeof prop === 'string' && prop.startsWith('server')) {
-              return createCaller(prop);
-            }
+            if (typeof prop === 'string' && prop.startsWith('server')) return createCaller(prop);
             return target[prop];
           }
         });
@@ -420,23 +262,51 @@ app.get(['/', '/index.html'], (req, res) => {
       return runner;
     }
     window.google.script.run = makeRunner();
-    window.google.script.run.withSuccessHandler = function(fn) {
-      var r = makeRunner();
-      return r.withSuccessHandler(fn);
-    };
-    window.google.script.run.withFailureHandler = function(fn) {
-      var r = makeRunner();
-      return r.withFailureHandler(fn);
-    };
+    window.google.script.run.withSuccessHandler = function(fn) { return makeRunner().withSuccessHandler(fn); };
+    window.google.script.run.withFailureHandler = function(fn) { return makeRunner().withFailureHandler(fn); };
   }
 })();
-</script>
-`;
-  html = html.replace('</head>', `${bridgeScript}\n</head>`);
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.send(html);
+</script>`;
+
+  return html.replace('</head>', `${bridgeScript}\n</head>`);
+}
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+  const pathname = url.pathname;
+
+  if (pathname === '/healthz') {
+    return sendJson(res, isolatedEngine ? 200 : 503, { ok: Boolean(isolatedEngine), version: '52.4.3-free-voice' });
+  }
+
+  if (req.method === 'POST' && pathname.startsWith('/api/gas/')) {
+    const fnName = pathname.slice('/api/gas/'.length);
+    try {
+      const payload = await readJson(req);
+      const out = runGas(fnName, payload.args);
+      return sendJson(res, out.status, out.body);
+    } catch (err) {
+      return sendJson(res, err.statusCode || 500, { ok: false, error: err.message || 'Erreur requête' });
+    }
+  }
+
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return sendJson(res, 405, { ok: false, error: 'Méthode non autorisée' });
+  }
+
+  if (pathname === '/' || pathname === '/index.html') {
+    const html = assembleGameHtml();
+    if (!html) return sendText(res, 404, 'V12_Jeu.html introuvable');
+    return sendText(res, 200, html, 'text/html; charset=utf-8');
+  }
+
+  if (pathname.startsWith('/assets/')) return serveStatic(res, assetsRoot, pathname.slice('/assets/'.length));
+  if (pathname.startsWith('/docs/')) return serveStatic(res, docsRoot, pathname.slice('/docs/'.length));
+  if (pathname.startsWith('/project/')) return serveStatic(res, projectRoot, pathname.slice('/project/'.length));
+
+  return sendText(res, 404, 'Introuvable');
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Serveur Elenya en écoute sur le port ${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Serveur Elenya en écoute sur ${HOST}:${PORT}`);
 });

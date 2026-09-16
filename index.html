@@ -988,7 +988,7 @@ html.reduced-motion *,html.reduced-motion *::before,html.reduced-motion *::after
 <button class="footer-btn" onclick="returnToMenu()">Menu principal</button>
 <div id="speed-wrap">🐢 <input type="range" id="speed-slider" min="20" max="200" value="60" oninput="updateSpeed(this.value)"> 🐇</div>
 </div>
-<div id="build-version" style="font-size:.72em; color:rgba(140,165,255,0.7);">V52.4.0-rc3-audio • Corona Glacialis — Refonte en validation</div>
+<div id="build-version" style="font-size:.72em; color:rgba(140,165,255,0.7);">V52.4.3-free-voice • Corona Glacialis — Refonte en validation</div>
 </div>
 
 <div class="overlay" id="overlay"><div class="overlay-text">Action en cours…</div></div>
@@ -2105,7 +2105,7 @@ let gallery = [];
 try { gallery = JSON.parse(localStorage.getItem('ef_gallery') || '[]'); } catch(e) {}
 const backup = {
   backupVersion: 1,
-  buildVersion: '52.4.0-rc3-audio',
+  buildVersion: '52.4.3-free-voice',
   exportedAt: new Date().toISOString(),
   state: state,
   achievements: getAllAchievements(),
@@ -2461,8 +2461,8 @@ function refreshBuildInfo(){
       .withSuccessHandler(info=>{
         if(!info) return;
         const el=document.getElementById('build-version');
-        if(el) el.textContent=(info.version || '52.4.0-rc3-audio')+' • '+(info.engine||'Corona Glacialis');
-        document.documentElement.dataset.engineVersion=String(info.version || '52.4.0-rc3-audio');
+        if(el) el.textContent=(info.version || '52.4.3-free-voice')+' • '+(info.engine||'Corona Glacialis');
+        document.documentElement.dataset.engineVersion=String(info.version || '52.4.3-free-voice');
       })
       .withFailureHandler(()=>{});
     if (runner && typeof runner.serverGetBuildInfo === 'function') {
@@ -3185,39 +3185,63 @@ const RF = (() => {
   const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(_){tell('Stockage local indisponible ou plein : exporte une sauvegarde.');return false}};
   const defaults={music:.35,ambience:.1,effects:.16,voice:1,narrator:false,voiceURI:"",voiceStyle:"fantasy",voiceDuck:"reduce",rate:.95,readChoices:false,autoFallback:true,contrast:false,motion:!matchMedia('(prefers-reduced-motion: reduce)').matches,vibration:false,auto:false};
 
-  // 30 voix officielles Gemini TTS avec description de texture et registre
+  // 4 voix candidates retenues pour Elenya. Les aperçus français sont lus
+  // depuis le pack local une fois généré; aucun appel TTS n'est fait côté joueur.
+  const VOICE_PACK_BASE = (() => {
+    // Sur le serveur Node/Railway, les fichiers sont servis localement.
+    // Dans Apps Script, on charge le même pack depuis le dépôt public afin
+    // de ne jamais dépendre d'une API TTS côté joueur.
+    const host = String((typeof location !== 'undefined' && location.hostname) || '').toLowerCase();
+    if (host.includes('script.google.com') || host.includes('googleusercontent.com')) {
+      return 'https://cdn.jsdelivr.net/gh/Sunstrader/elenya-52-audio@main/elenya-refonte-52.4/assets/voices/';
+    }
+    return '/assets/voices/';
+  })();
+
   const OFFICIAL_VOICES = [
-    { id: 'Achernar', name: 'Achernar', desc: 'Clair & posé' },
-    { id: 'Achird', name: 'Achird', desc: 'Direct & amical' },
-    { id: 'Algenib', name: 'Algenib', desc: 'Solennel & profond' },
-    { id: 'Algieba', name: 'Algieba', desc: 'Chaleureux & rayonnant' },
-    { id: 'Alnilam', name: 'Alnilam', desc: 'Limpide & posé' },
-    { id: 'Aoede', name: 'Aoede', desc: 'Aérien & mélodieux' },
-    { id: 'Autonoe', name: 'Autonoe', desc: 'Vif & expressif' },
-    { id: 'Callirrhoe', name: 'Callirrhoe', desc: 'Subtil & intime' },
-    { id: 'Charon', name: 'Charon', desc: 'Grave & calme' },
-    { id: 'Despina', name: 'Despina', desc: 'Clair & fluide' },
-    { id: 'Enceladus', name: 'Enceladus', desc: 'Franc & vigoureux' },
-    { id: 'Erinome', name: 'Erinome', desc: 'Doux & feutré' },
-    { id: 'Fenrir', name: 'Fenrir', desc: 'Profond & captivant' },
-    { id: 'Gacrux', name: 'Gacrux', desc: 'Chaud & rassurant' },
-    { id: 'Iapetus', name: 'Iapetus', desc: 'Antique & contemplatif' },
-    { id: 'Kore', name: 'Kore', desc: 'Clair & résolu' },
-    { id: 'Laomedeia', name: 'Laomedeia', desc: 'Fluide & mystérieux' },
-    { id: 'Leda', name: 'Leda', desc: 'Élégant & mesuré' },
-    { id: 'Orus', name: 'Orus', desc: 'Ferme & posé' },
-    { id: 'Puck', name: 'Puck', desc: 'Chaleureux & conteur' },
-    { id: 'Pulcherrima', name: 'Pulcherrima', desc: 'Lumineux & vibrant' },
-    { id: 'Rasalgethi', name: 'Rasalgethi', desc: 'Vénérable & sage' },
-    { id: 'Sadachbia', name: 'Sadachbia', desc: 'Méditatif & discret' },
-    { id: 'Sadaltager', name: 'Sadaltager', desc: 'Tranquille & équilibré' },
-    { id: 'Schedar', name: 'Schedar', desc: 'Digne & soutenu' },
-    { id: 'Sulafat', name: 'Sulafat', desc: 'Confiant & chaleureux' },
-    { id: 'Umbriel', name: 'Umbriel', desc: 'Sombre & feutré' },
-    { id: 'Vindemiatrix', name: 'Vindemiatrix', desc: 'Précis & distingué' },
-    { id: 'Zephyr', name: 'Zephyr', desc: 'Doux & aérien' },
-    { id: 'Zubenelgenubi', name: 'Zubenelgenubi', desc: 'Solennel & lointain' }
+    { id: 'Algenib', name: 'Algenib', gender: 'Masculine', desc: 'Grave, rocailleux & dramatique', previews: [VOICE_PACK_BASE+'previews/algenib.ogg',VOICE_PACK_BASE+'previews/algenib.wav'] },
+    { id: 'Achird', name: 'Achird', gender: 'Masculine', desc: 'Amical, naturel & chaleureux', previews: [VOICE_PACK_BASE+'previews/achird.ogg',VOICE_PACK_BASE+'previews/achird.wav'] },
+    { id: 'Sulafat', name: 'Sulafat', gender: 'Féminine', desc: 'Chaude, posée & enveloppante', previews: [VOICE_PACK_BASE+'previews/sulafat.ogg',VOICE_PACK_BASE+'previews/sulafat.wav'] },
+    { id: 'Leda', name: 'Leda', gender: 'Féminine', desc: 'Jeune, claire & légère', previews: [VOICE_PACK_BASE+'previews/leda.ogg',VOICE_PACK_BASE+'previews/leda.wav'] }
   ];
+
+  const VoicePack = (() => {
+    const manifestUrl = VOICE_PACK_BASE + 'pack-manifest.json';
+    let manifest = null;
+    let loadPromise = null;
+
+    async function load() {
+      if (manifest) return manifest;
+      if (loadPromise) return loadPromise;
+      loadPromise = fetch(manifestUrl, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
+        .then(m => { manifest = m || { entries: {}, voices: {} }; return manifest; });
+      return loadPromise;
+    }
+
+    function getVoice(voiceId) {
+      return OFFICIAL_VOICES.find(v => v.id === voiceId) || null;
+    }
+
+    async function resolveSegment(text, voice, style) {
+      const m = await load();
+      const key = AudioCache.makeKey(text, voice, style);
+      const entry = m && m.entries ? m.entries[key] : null;
+      if (!entry) return null;
+      if (typeof entry === 'string') return entry.startsWith('/') ? entry : '/assets/voices/' + entry.replace(/^\/+/, '');
+      if (entry.url) return entry.url;
+      if (entry.file) return VOICE_PACK_BASE + String(entry.file).replace(/^\/+/, '');
+      return null;
+    }
+
+    function previewUrls(voiceId) {
+      const v = getVoice(voiceId);
+      return v && Array.isArray(v.previews) ? v.previews.slice() : [];
+    }
+
+    return { load, getVoice, resolveSegment, previewUrls };
+  })();
 
   const legacyPrefs=read('ef_preferences_v524',{}),prefs={...defaults,...legacyPrefs};
   const legacyDefaults={music:.7,ambience:.18,effects:.3,voice:.8};
@@ -3332,9 +3356,9 @@ const RF = (() => {
     const select=$('rf-voice-select');if(!select)return;
     const voices=frenchVoices();
     let html='<option value="">Automatique — français</option>';
-    html+='<optgroup label="Voix naturelles (30 voix officielles)">';
+    html+='<optgroup label="Voix candidates Elenya — pack français local">';
     OFFICIAL_VOICES.forEach(v=>{
-      html+='<option value="'+escapeHtml(v.id)+'">'+escapeHtml(v.name)+' — '+escapeHtml(v.desc)+'</option>';
+      html+='<option value="'+escapeHtml(v.id)+'">'+escapeHtml(v.gender)+' · '+escapeHtml(v.name)+' — '+escapeHtml(v.desc)+'</option>';
     });
     html+='</optgroup>';
     if(voices.length>0){
@@ -3389,31 +3413,25 @@ const RF = (() => {
     }
   }
 
-  // Téléchargement ou lecture depuis le cache d'un segment
+  // Lecture d'un segment pré-généré depuis le pack statique. Aucune clé API n'est
+  // utilisée côté joueur. Le cache conserve seulement les URLs déjà résolues.
   async function fetchSegmentAudio(text, voice, style, signal) {
     const cacheKey = AudioCache.makeKey(text, voice, style);
     const cachedUrl = await AudioCache.get(cacheKey);
     if (cachedUrl) return cachedUrl;
-
-    const r = await fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voice, style }),
-      signal: signal || undefined
-    });
-
-    if (!r.ok) {
-      const errData = await r.json().catch(() => ({}));
-      const err = new Error(errData.error || ('Erreur serveur ' + r.status));
-      err.status = r.status;
-      err.code = errData.code;
+    if (signal && signal.aborted) {
+      const aborted = new Error('Lecture annulée');
+      aborted.name = 'AbortError';
+      throw aborted;
+    }
+    const audioUrl = await VoicePack.resolveSegment(text, voice, style);
+    if (!audioUrl) {
+      const err = new Error('Segment absent du pack vocal local');
+      err.code = 'PACK_MISS';
       throw err;
     }
-
-    const res = await r.json();
-    if (!res || !res.audioUrl) throw new Error('Aucun audio reçu');
-    await AudioCache.set(cacheKey, res.audioUrl);
-    return res.audioUrl;
+    await AudioCache.set(cacheKey, audioUrl);
+    return audioUrl;
   }
 
   // Préchargement discret du segment suivant en tâche de fond
@@ -3440,24 +3458,33 @@ const RF = (() => {
       voiceAbortController = new AbortController();
     }
 
-    // Construction du texte
-    let parts = [data.title, data.narrative];
+    // Construction canonique des segments vocaux. Le serveur fournit voiceParts
+    // (titre / réponse de choix / narration) séparément pour maximiser la
+    // réutilisation des fichiers pré-générés. Anciennes versions : repli sur
+    // title+narrative. Chaque choix est aussi un segment indépendant.
+    const canonicalParts = Array.isArray(data.voiceParts) && data.voiceParts.length
+      ? data.voiceParts.map(p => p && p.text).filter(Boolean)
+      : [data.title, data.narrative].filter(Boolean);
+    const segments = [];
+    canonicalParts.forEach(text => segmentNarrative(String(text), 800).forEach(seg => segments.push(seg)));
     if (prefs.readChoices && Array.isArray(data.choices) && data.choices.length > 0) {
-      parts.push('\nChoix proposés :\n' + data.choices.map((c, i) => `Choix ${i + 1} : ${c.text}`).join('\n'));
+      data.choices.forEach((c, i) => {
+        const choiceText = `Choix : ${c.text}`;
+        segmentNarrative(choiceText, 800).forEach(seg => segments.push(seg));
+      });
     }
-    const fullText = parts.filter(Boolean).join('\n\n');
+    const fullText = segments.join('\n\n');
 
     const isOfficial = OFFICIAL_VOICES.some(v => v.id === prefs.voiceURI);
     const canFetch = typeof fetch === 'function' && typeof window !== 'undefined' && window.location && !window._isTestEnv;
 
     if (isOfficial && canFetch) {
-      const segments = segmentNarrative(fullText, 800);
       if (segments.length === 0) {
         isVoiceBusy = false;
         return;
       }
 
-      updateNarrateUI(true, 'Préparation de la narration…');
+      updateNarrateUI(true, 'Recherche de la narration dans le pack vocal…');
       playSegmentsChain(segments, 0, token);
       return;
     }
@@ -3532,33 +3559,21 @@ const RF = (() => {
       });
   }
 
-  // Gestion robuste et compréhensible des erreurs TTS
+  // Si une variante narrative n'est pas encore présente dans le pack, on
+  // bascule immédiatement sur la synthèse vocale locale du navigateur.
   function handleTtsError(err, fallbackText, token) {
     isVoiceBusy = false;
     duckOtherAudio(false);
     updateNarrateUI(false);
 
-    let userMsg = 'Erreur de narration.';
-    const status = err.status;
-    const code = err.code;
-
-    if (status === 429 || code === 'QUOTA_EXCEEDED' || code === 'SERVER_BUSY') {
-      userMsg = 'Quota de synthèse vocale atteint. Réessaie dans quelques instants.';
-    } else if (status === 503 || code === 'NO_API_KEY') {
-      userMsg = 'Service de narration non configuré sur le serveur.';
-    } else if (status === 504 || code === 'TIMEOUT') {
-      userMsg = 'Le délai de génération a expiré.';
-    } else if (!navigator.onLine) {
-      userMsg = 'Connexion temporairement interrompue.';
-    }
+    const code = err && err.code;
+    const userMsg = code === 'PACK_MISS'
+      ? 'Cette variante n’est pas encore pré-générée dans le pack vocal.'
+      : 'Le fichier vocal local n’a pas pu être lu.';
 
     if (prefs.autoFallback) {
-      tell(`${userMsg} Basculement sur la voix du navigateur…`);
-      setTimeout(() => {
-        if (token === voiceEpoch) {
-          fallbackSpeech(fallbackText, token);
-        }
-      }, 700);
+      tell(userMsg + ' Basculement sur la voix du navigateur…');
+      if (token === voiceEpoch) fallbackSpeech(fallbackText, token);
     } else {
       tell(userMsg);
     }
@@ -3661,11 +3676,12 @@ const RF = (() => {
     <select id="rf-voice-select" data-pref="voiceURI" aria-label="Voix du narrateur"></select>
   </label>
   <div id="rf-voice-active-label" class="rf-muted" style="font-size:.9em;margin-top:-.3rem;margin-bottom:.5rem;"></div>
+  <div class="rf-muted" style="font-size:.82em;margin-bottom:.6rem;">Les 4 voix candidates utilisent des aperçus français locaux quand ils sont présents. La narration complète lit le pack pré-généré quand la variante existe, sinon la voix française du navigateur prend le relais.</div>
 
   <!-- Bloc d'aperçu de voix dédié -->
   <div class="rf-voice-preview-box" style="background:rgba(255,255,255,0.04);border:1px solid var(--rf-line);padding:10px 14px;border-radius:8px;margin:12px 0;">
     <div style="font-size:0.85rem;color:#d8e6fb;margin-bottom:8px;line-height:1.4;">
-      « Sur les crêtes de givre, le vent murmure les légendes d'Elenya. Les cristaux d'éther s'illuminent dans la pénombre glaciale. »
+      Écoute un court extrait de la voix choisie. La phrase de démonstration peut être différente du texte du jeu.
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <button type="button" id="rf-btn-preview-voice" style="padding:6px 14px;min-height:38px;">🔊 Tester cette voix</button>
@@ -3696,7 +3712,7 @@ const RF = (() => {
 
   <label>
     <input type="checkbox" data-pref="autoFallback" ${prefs.autoFallback?'checked':''}>
-    Basculement automatique sur la voix du navigateur si le service est indisponible
+    Basculement automatique sur la voix du navigateur si une variante manque au pack local
   </label>
 
   <label>
@@ -3710,7 +3726,7 @@ const RF = (() => {
 
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
     <button type="button" id="rf-test-voice">Écouter la scène actuelle</button>
-    <button type="button" id="rf-clear-cache">🗑️ Vider le cache audio</button>
+    <button type="button" id="rf-clear-cache">🗑️ Vider le cache vocal</button>
   </div>
   <div id="rf-cache-status" class="rf-muted" style="font-size:0.82rem;margin-top:4px;"></div>
 </section>
@@ -3775,46 +3791,16 @@ const RF = (() => {
       try {
         const isOfficial = OFFICIAL_VOICES.some(v => v.id === prefs.voiceURI);
         if (isOfficial) {
-          const cacheKey = AudioCache.makeKey(PREVIEW_SAMPLE_TEXT, prefs.voiceURI, prefs.voiceStyle || 'fantasy');
-          let audioUrl = await AudioCache.get(cacheKey);
-          if (token !== previewEpoch) return;
-
-          if (audioUrl) {
-            previewStatus.textContent = '▶️ Lecture (cache)…';
-          } else {
-            previewStatus.textContent = '⏳ Génération de l’aperçu…';
-            const r = await fetch('/api/tts', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                text: PREVIEW_SAMPLE_TEXT,
-                voice: prefs.voiceURI,
-                style: prefs.voiceStyle || 'fantasy',
-                isPreview: true
-              }),
-              signal: previewAbortController ? previewAbortController.signal : undefined
-            });
-            if (token !== previewEpoch) return;
-            if (!r.ok) {
-              const errData = await r.json().catch(()=>({}));
-              throw new Error(errData.error || ('Erreur ' + r.status));
-            }
-            const res = await r.json();
-            if (token !== previewEpoch) return;
-            if (!res || !res.audioUrl) throw new Error('Aucun audio reçu');
-            audioUrl = res.audioUrl;
-            await AudioCache.set(cacheKey, audioUrl);
-            if (token !== previewEpoch) return;
-          }
-
-          p.src = audioUrl;
+          const audioUrls = VoicePack.previewUrls(prefs.voiceURI);
+          if (!audioUrls.length) throw new Error('Aperçu français local indisponible');
+          let previewSourceIndex = 0;
+          previewStatus.textContent = '⏳ Chargement de l’aperçu de la voix…';
+          p.src = audioUrls[previewSourceIndex];
           p.playbackRate = prefs.rate || 1;
           p.volume = _isMuted ? 0 : (prefs.voice ?? 1);
 
           p.onplay = () => {
-            if (token === previewEpoch) {
-              previewStatus.textContent = '▶️ Lecture en cours…';
-            }
+            if (token === previewEpoch) previewStatus.textContent = '▶️ Aperçu français pré-généré — aucune clé API';
           };
           p.onended = () => {
             if (token === previewEpoch) {
@@ -3824,13 +3810,41 @@ const RF = (() => {
             }
           };
           p.onerror = () => {
-            if (token === previewEpoch) {
-              btnPreview.disabled = false;
-              btnStopPreview.style.display = 'none';
-              previewStatus.textContent = 'Erreur lors de la lecture';
+            if (token !== previewEpoch) return;
+            previewSourceIndex++;
+            if (previewSourceIndex < audioUrls.length) {
+              previewStatus.textContent = '⏳ Source de secours…';
+              p.src = audioUrls[previewSourceIndex];
+              p.play().catch(()=>{});
+              return;
             }
+            // Tant que le pack français exact n'a pas été généré, on évite
+            // l'ancien échantillon anglais et on propose un aperçu français de
+            // secours avec la meilleure voix système disponible.
+            if ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+              try {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(PREVIEW_SAMPLE_TEXT);
+                u.lang = 'fr-FR';
+                u.rate = prefs.rate || 1;
+                u.volume = _isMuted ? 0 : (prefs.voice ?? 1);
+                const fr = frenchVoices();
+                if (fr[0]) u.voice = fr[0];
+                u.onstart = () => { if (token === previewEpoch) previewStatus.textContent = '▶️ Aperçu français de secours — voix système'; };
+                u.onend = () => { if (token === previewEpoch) { btnPreview.disabled = false; btnStopPreview.style.display = 'none'; previewStatus.textContent = 'Prêt'; } };
+                u.onerror = () => { if (token === previewEpoch) { btnPreview.disabled = false; btnStopPreview.style.display = 'none'; previewStatus.textContent = 'Aperçu français indisponible'; } };
+                window.speechSynthesis.speak(u);
+                return;
+              } catch (_) {}
+            }
+            btnPreview.disabled = false;
+            btnStopPreview.style.display = 'none';
+            previewStatus.textContent = 'Aperçu français indisponible';
           };
-          await p.play();
+          // Ne pas await ici : sur un fichier absent, certains navigateurs
+          // rejettent play() avant d'émettre `error`. Le gestionnaire `onerror`
+          // doit rester maître du passage .ogg -> .wav -> voix système française.
+          p.play().catch(()=>{});
         } else {
           // Synthèse navigateur
           if (!('speechSynthesis' in window)) throw new Error('Synthèse navigateur non supportée');

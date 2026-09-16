@@ -19,6 +19,8 @@ Cette build prépare les **2 260 segments français** d’Elenya pour une narrat
 - Sulafat
 - Leda
 
+Les libellés de genre/style du manifeste sont des choix de casting d’Elenya, pas des classifications officielles de Google.
+
 ## Corpus
 
 - 246 scènes jouables (+ scène technique)
@@ -26,7 +28,9 @@ Cette build prépare les **2 260 segments français** d’Elenya pour une narrat
 - 2 260 segments uniques
 - 731 582 caractères par voix
 
-## Cloud Shell
+Détails : `elenya-refonte-52.4/docs/voice-corpus-report.json` et `elenya-refonte-52.4/assets/voices/voice-corpus.json`.
+
+## Cloud Shell — méthode gratuite
 
 ```bash
 bash scripts/prepare-gemini-free.sh
@@ -34,18 +38,32 @@ npm run voice:previews
 npm run voice:status
 ```
 
-Pour générer Sulafat en priorité :
+Le script demande une clé provenant d’un projet **Free** dans Google AI Studio. Elle est stockée uniquement dans `~/.config/elenya/gemini-free.key` avec permissions `600`, hors du dépôt.
+
+### Générer Sulafat en priorité
 
 ```bash
 npm run voice:generate
 npm run voice:status
 ```
 
-Les quatre voix :
+La commande est reprenable. Si le quota gratuit est atteint, elle s’arrête volontairement et tu relances la même commande plus tard.
+
+### Une autre voix
+
+```bash
+node scripts/generate-full-voice-pack.mjs --backend=gemini-free --voice=Algenib
+node scripts/generate-full-voice-pack.mjs --backend=gemini-free --voice=Achird
+node scripts/generate-full-voice-pack.mjs --backend=gemini-free --voice=Leda
+```
+
+### Les quatre voix complètes
 
 ```bash
 npm run voice:generate:all
 ```
+
+C’est 9 040 fichiers au maximum ; en Free Tier cela peut demander plusieurs sessions/jours selon les quotas actifs du projet.
 
 ## Vérifications
 
@@ -56,4 +74,12 @@ npm run build
 npm run voice:status
 ```
 
-Le joueur n’utilise jamais l’API Gemini directement.
+`npm run voice:verify` ne réussit que lorsque les quatre voix couvrent les 2 260 segments et possèdent leurs aperçus.
+
+## Lecture dans le jeu
+
+- Node / Railway : `/assets/voices/`
+- Apps Script : fallback CDN GitHub vers `Sunstrader/elenya-52-audio`
+- Segment manquant : fallback TTS français du navigateur
+
+Le joueur n’utilise jamais l’API Gemini.

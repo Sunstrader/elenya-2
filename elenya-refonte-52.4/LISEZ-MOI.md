@@ -1,44 +1,67 @@
-# Elenya — 52.4.0-rc3-audio
+# Elenya — 52.4.3-free-voice
 
-Correctif audio ciblé sur l’archive 52.4.0-rc2 retrouvée le 14 septembre 2026.
+Cette version conserve les correctifs 52.4/52.4.1 (NG+, sauvegardes, galerie, audio, historique) et ajoute l'infrastructure complète pour un pack vocal français pré-généré.
 
-- Musique, ambiances et effets baissés à 25 % de leur volume pendant la parole, sans suppression. Baisse en 200 ms, remontée en 500 ms.
-- Atténuation indépendante des fondus et des rotations musicales.
-- Volume rétabli à la valeur choisie, y compris après un changement de réglage pendant la lecture.
-- Effets toujours joués et atténuation des effets déjà en cours.
-- Sélecteur de voix françaises, chargement tardif des voix pris en compte, choix mémorisé et bouton d’écoute de la scène. Le choix automatique privilégie les voix signalées Natural/Neural/Online/Premium/Enhanced quand elles existent, puis le français de France. C’est une préférence de sélection, pas une garantie de qualité.
-- Phrases courtes regroupées pour réduire les redémarrages. Vitesse par défaut 0,95 pour les nouveaux réglages ; réglages existants conservés.
-- Narrateur à volume 100 % par défaut ; activation facultative inchangée.
+## Voix
 
-Les sauvegardes, le scénario, les 3 CG et les 33 vidéos conservent leur contenu et leurs références. Le code n’a pas été déployé sur Apps Script.
+- Algenib — masculine
+- Achird — masculine
+- Sulafat — féminine
+- Leda — féminine
 
-## Musiques
+Le jeu n'a plus besoin de générer les voix à la volée. Il cherche d'abord un fichier pré-généré dans `assets/voices/pack-manifest.json`, puis utilise la synthèse vocale française du navigateur seulement si ce fichier n'existe pas encore.
 
-Les 32 MP3 ont été retrouvés (22 nouveaux + 10 précédents). L’inventaire avec empreintes est dans `docs/musiques-retrouvees-2026-09-14.json`. Ce correctif conserve les 10 musiques déjà utilisées. Les 22 nouvelles ne sont pas encore raccordées aux scènes ni publiées. Les fichiers audio ne sont pas dupliqués dans cette archive de code.
+Le corpus contient 2 260 segments uniques issus des 246 scènes jouables et de 1 269 variantes narratives détectées.
 
 ## Validation
 
-Voir `qa/resultats-audio.json`, `qa/resultats-client-audio.json` et `qa/resultats-verification-audio.json`. Tests Node avec DOM et audio simulés ; aucune écoute sur l’appareil du joueur ni recette sur le site Google Apps Script. La qualité des voix dépend des voix françaises proposées par le navigateur et le système.
+Depuis la racine du projet Node :
 
-## Cloud Shell
+```bash
+npm test
+npm run lint
+npm run build
+npm run voice:status
+```
 
-Téléverser l’archive dans le dossier personnel Cloud Shell, puis exécuter ce bloc complet. La sauvegarde du code actuel est créée avant le poussage ; une erreur interrompt le bloc.
+## Cloud Shell — génération des 4 aperçus français
+
+```bash
+cd ~/elenya-52-audio-52.4.3-free-voice
+bash scripts/prepare-gemini-free.sh
+npm run voice:previews
+npm run voice:status
+```
+
+## Cloud Shell — pack complet Sulafat
+
+```bash
+npm run voice:generate
+npm run voice:status
+```
+
+Pour générer volontairement les quatre voix complètes :
+
+```bash
+npm run voice:generate:all
+```
+
+La génération est reprenable et saute les fichiers déjà produits.
+
+## Apps Script
+
+Pour pousser le code Apps Script après sauvegarde :
 
 ```bash
 set -e
-cd ~
+cd ~/elenya-52-audio-52.4.3-free-voice
+npm test
+cd elenya-refonte-52.4/project
 clasp login
-elenya_backup_dir=$(mktemp -d "$HOME/elenya-avant-audio.XXXXXX")
-cd "$elenya_backup_dir"
-clasp clone 1IEWLRwRA8i5MYtkMOsmTkOn1YTZ4RiJmiMIzMhXhmKnwPiVkoD7rtyo0
-cd ~
-unzip -o elenya-52.4.0-rc3-audio.zip -d elenya-52.4.0-rc3-audio
-cd ~/elenya-52.4.0-rc3-audio/elenya-refonte-52.4
-node qa/audio-narration.cjs
-node qa/client-state.cjs
-cd project
 clasp push --force
 clasp open-script
 ```
 
-Dans Apps Script : Déployer → Gérer les déploiements → Modifier → Nouvelle version → Déployer. Mettre à jour le déploiement existant pour conserver l’URL.
+Dans Apps Script : `Déployer` → `Gérer les déploiements` → `Modifier` → `Nouvelle version` → `Déployer`.
+
+Les fichiers audio ne sont pas hébergés par Apps Script. Le client détecte Apps Script et charge automatiquement le pack depuis le dépôt GitHub public ; il faut donc publier `assets/voices/` sur le dépôt après génération.

@@ -1020,7 +1020,7 @@ let gallery = [];
 try { gallery = JSON.parse(localStorage.getItem('ef_gallery') || '[]'); } catch(e) {}
 const backup = {
   backupVersion: 1,
-  buildVersion: '52.4.0-rc3-audio',
+  buildVersion: '52.4.3-free-voice',
   exportedAt: new Date().toISOString(),
   state: state,
   achievements: getAllAchievements(),
@@ -1376,8 +1376,8 @@ function refreshBuildInfo(){
       .withSuccessHandler(info=>{
         if(!info) return;
         const el=document.getElementById('build-version');
-        if(el) el.textContent=(info.version || '52.4.0-rc3-audio')+' • '+(info.engine||'Corona Glacialis');
-        document.documentElement.dataset.engineVersion=String(info.version || '52.4.0-rc3-audio');
+        if(el) el.textContent=(info.version || '52.4.3-free-voice')+' • '+(info.engine||'Corona Glacialis');
+        document.documentElement.dataset.engineVersion=String(info.version || '52.4.3-free-voice');
       })
       .withFailureHandler(()=>{});
     if (runner && typeof runner.serverGetBuildInfo === 'function') {

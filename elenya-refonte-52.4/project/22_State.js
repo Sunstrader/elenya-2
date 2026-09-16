@@ -190,9 +190,9 @@ function latestNarrativeEcho(state) {
   return n.echoes.length ? n.echoes[n.echoes.length - 1] : null;
 }
 
-const BUILD_VERSION = '52.4.0-rc3-audio';
+const BUILD_VERSION = '52.4.3-free-voice';
 const SCHEMA_VERSION = 50;
-const ENGINE_LABEL = 'Corona Glacialis — V52.4.0-rc3-audio · Refonte en validation';
+const ENGINE_LABEL = 'Corona Glacialis — V52.4.3-free-voice · Refonte en validation';
 
 const V50_LEGACY_SCENE_ID_MAP = Object.freeze({
   "ACTE1_07": "ACTE1_07_RETROUVAILLES",

@@ -1,6 +1,6 @@
 {
   "base": "52.4.0-rc2",
-  "version": "52.4.0-rc3-audio",
+  "version": "52.4.1-voice-test",
   "fichiers_modifies": [
     "project/Game_Interface.html",
     "project/Scripts_Game.html",

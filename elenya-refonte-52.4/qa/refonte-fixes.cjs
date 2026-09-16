@@ -92,7 +92,7 @@ assert.strictEqual(collisionDetected, false, 'Aucune collision détectée sur 10
 pass('Aucune collision de clés : SHA-256 produit 64 caractères hexadécimaux uniques');
 
 // ----------------------------------------------------
-// Test 3 : Annulation d'aperçu vocal et interruption de génération
+// Test 3 : Annulation d'aperçu vocal et chargement asynchrone
 // ----------------------------------------------------
 console.log('\n\x1b[36m[Test 3] Annulation d’Aperçu Vocal et Gestion d’Époque\x1b[0m');
 
@@ -113,7 +113,7 @@ async function simulatePreviewStart(delayMs, shouldCancel) {
     previewAbortController.abort();
   }
 
-  // Simulation de la requête asynchrone TTS
+  // Simulation du chargement asynchrone de l'aperçu
   await new Promise(resolve => setTimeout(resolve, delayMs));
 
   // Vérification de garde
@@ -131,10 +131,10 @@ async function simulatePreviewStart(delayMs, shouldCancel) {
   // Scénario B : L'utilisateur clique sur Arrêter pendant la génération
   await simulatePreviewStart(10, true);
   assert.strictEqual(audioPlayed, false, 'L\'audio NE DOIT PAS démarrer après un clic sur Arrêter ou fermeture');
-  pass('L’arrêt de l’aperçu annule avec succès la lecture même si le serveur répond ultérieurement');
+  pass('L’arrêt de l’aperçu annule avec succès la lecture même si la source répond ultérieurement');
 
   // ----------------------------------------------------
-  // Test 4 : Mise en cache des aperçus vocaux
+  // Test 4 : Résolution stable des aperçus vocaux
   // ----------------------------------------------------
   console.log('\n\x1b[36m[Test 4] Mise en Cache des Aperçus Vocaux\x1b[0m');
 
@@ -154,14 +154,14 @@ async function simulatePreviewStart(delayMs, shouldCancel) {
 
   const sampleText = "Sur les crêtes de givre, le vent murmure les légendes d'Elenya.";
   const firstCall = await getOrFetchPreview(sampleText, 'gemini-voice-oraya', 'fantasy');
-  assert.strictEqual(firstCall.fromCache, false, 'Le 1er essai sollicite le serveur');
-  assert.strictEqual(networkCalls, 1, '1 appel réseau');
+  assert.strictEqual(firstCall.fromCache, false, 'Le 1er essai résout la source');
+  assert.strictEqual(networkCalls, 1, '1 résolution initiale');
 
   const secondCall = await getOrFetchPreview(sampleText, 'gemini-voice-oraya', 'fantasy');
   assert.strictEqual(secondCall.fromCache, true, 'Le 2nd essai provient directement du cache');
-  assert.strictEqual(networkCalls, 1, '0 nouvel appel réseau (Gemini non sollicité)');
+  assert.strictEqual(networkCalls, 1, '0 nouvelle résolution');
   assert.strictEqual(firstCall.url, secondCall.url, 'L\'URL en cache est identique');
-  pass('Les aperçus utilisent le cache : le 2nd essai ne sollicite pas Gemini');
+  pass('Les aperçus peuvent être réutilisés sans génération TTS');
 
   // ----------------------------------------------------
   // Test 5 : Bouton Arrêter pendant la préparation de scène

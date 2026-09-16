@@ -52,7 +52,18 @@ class SceneManager {
     }
 
     const gsWrapper = {
+      // Lecture directe tolérée pour les anciennes scènes (ex. gs.timers.venin).
+      // On expose des copies afin qu'une narration ne puisse pas muter l'état par accident.
       gameMode: this.state.gameMode,
+      flags: (this.state.flags || []).slice(),
+      globalFlags: (this.state.globalFlags || []).slice(),
+      gauges: Object.assign({}, this.state.gauges || {}),
+      timers: Object.assign({}, this.state.timers || {}),
+      inventory: (this.state.inventory || []).slice(),
+      reputation: Object.assign({}, this.state.reputation || {}),
+      route: this.state.route || null,
+      ngPlus: Object.assign({}, this.state.ngPlus || {}),
+      achievements: (this.state.achievements || []).slice(),
       hasFlag: (f) => this.state.flags.includes(f),
       hasGlobalFlag: (f) => {
         // Les flags techniques du NG+ ne doivent jamais contaminer une partie classique.
@@ -69,8 +80,10 @@ class SceneManager {
 
     let rawText = scene.getDynamicNarrative ? scene.getDynamicNarrative(gsWrapper) : (scene.text || scene.narrative || "");
     let parsedNarrative = _parseDynamicText(rawText, this.state);
+    const baseNarrative = parsedNarrative;
     const response = this.state.narrative && this.state.narrative.lastChoiceResponse;
-    if (response && response.destination === sceneId && response.text) parsedNarrative = response.text + '\n\n' + parsedNarrative;
+    const choiceResponseText = (response && response.destination === sceneId && response.text) ? String(response.text) : '';
+    if (choiceResponseText) parsedNarrative = choiceResponseText + '\n\n' + parsedNarrative;
 
     // Une micro-scène sans décor propre hérite du dernier décor narratif.
     // Cela conserve les enchaînements normaux et évite un fond noir lors de la reprise
@@ -104,6 +117,14 @@ class SceneManager {
         ? ({1:'Comparer tes souvenirs et comprendre ce qui recommence.',2:'Distinguer les liens choisis des obligations héritées.',3:'Écouter les témoins du premier Gel.',4:'Affronter ce qui entretient le cycle.',5:'Décider de ce que tu transmettras.'})[scene.chapter||1]
         : ({1:'Comprendre ton réveil et trouver une issue.',2:'Traverser les Terres Basses avec les alliances que tu as choisies.',3:'Trouver un refuge et comprendre les effets du venin.',4:'Atteindre le Trône et confronter les vérités du Gel.',5:'Assumer les conséquences de ton parcours.'})[scene.chapter||1],
       title: scene.title || "",
+      // Morceaux canoniques de voix : ils évitent que la réponse d'un choix change
+      // le hash de toute la narration. Le client peut ainsi réutiliser un pack
+      // pré-généré beaucoup plus efficacement.
+      voiceParts: [
+        scene.title ? {kind:'title', text:String(scene.title)} : null,
+        choiceResponseText ? {kind:'choiceResponse', text:choiceResponseText} : null,
+        baseNarrative ? {kind:'narrative', text:String(baseNarrative)} : null
+      ].filter(Boolean),
       mood: scene.mood || 'exploration',
       image: effectiveImage,
       transitionGif: normalizeAssetRef(endingVideo || scene.transitionGif || null),
@@ -154,6 +175,15 @@ class SceneManager {
   _filterChoices(choices) {
     const gsWrapper = {
       gameMode: this.state.gameMode,
+      flags: (this.state.flags || []).slice(),
+      globalFlags: (this.state.globalFlags || []).slice(),
+      gauges: Object.assign({}, this.state.gauges || {}),
+      timers: Object.assign({}, this.state.timers || {}),
+      inventory: (this.state.inventory || []).slice(),
+      reputation: Object.assign({}, this.state.reputation || {}),
+      route: this.state.route || null,
+      ngPlus: Object.assign({}, this.state.ngPlus || {}),
+      achievements: (this.state.achievements || []).slice(),
       hasFlag: (f) => this.state.flags.includes(f),
       hasGlobalFlag: (f) => (this.state.gameMode === 'ngplus' || (String(f) !== 'ng_plus_unlocked' && !String(f).startsWith('ngplus_'))) && this.state.globalFlags.includes(f),
       getGauge: (g) => this.state.gauges[g] || 0,
