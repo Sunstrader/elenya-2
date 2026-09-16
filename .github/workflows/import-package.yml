@@ -1,0 +1,32 @@
+name: Import package
+on:
+  push:
+    branches: [main]
+    paths:
+      - import-source.txt
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Import archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 "$(cat import-source.txt)" -o /tmp/package.zip
+          unzip -t /tmp/package.zip >/dev/null
+          rm -rf /tmp/import && mkdir -p /tmp/import
+          unzip -q /tmp/package.zip -d /tmp/import
+          src=$(find /tmp/import -mindepth 1 -maxdepth 1 -type d | head -n1)
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github -exec rm -rf {} +
+          cp -a "$src"/. .
+          rm -f import-source.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Import complete project package"
+          git push origin main
