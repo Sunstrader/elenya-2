@@ -42,3 +42,5 @@ jobs:
           fi
           git commit -m "Fix V56 gallery and duplicated ending visuals"
           git push origin HEAD:main
+
+# QA retry: keep the historical 33 ending IDs while filtering duplicate binaries.
