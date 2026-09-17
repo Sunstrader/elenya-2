@@ -2347,6 +2347,7 @@ modal.classList.add('show');
 let unlocked = JSON.parse(localStorage.getItem('ef_gallery') || '[]');
 const art54 = 'https://cdn.jsdelivr.net/gh/Sunstrader/elenya-3d-assets@main/game-v54/';
 const art55 = art54.replace('game-v54/', 'game-v55/');
+const art56 = 'https://cdn.jsdelivr.net/gh/Sunstrader/elenya-3d-assets@b02779d6f91076b3bfedc96622b311255ce7f1ac/game-v56/backgrounds/';
 const endingIds = [
   'FIN_POLY','GAME_OVER_SURCHARGE','GAME_OVER_SIRENE','GAME_OVER_SCELLEE',
   'FIN_HIVER','FIN_SACRIFICE','FIN_MORTELLE','FIN_OMBRE','FIN_ECLAIREUR',
@@ -2366,7 +2367,23 @@ const bgNames = {
   'larmes-kalthar':'Larmes de Kalthar','mansarde-auberge':'Mansarde de l’auberge','observatoire':'Observatoire gelé',
   'royaume-souvenirs':'Royaume des souvenirs','serre':'Serre du palais','trone-ebene':'Trône d’Ébène','village':'Village d’hiver'
 };
-const allCG = Object.keys(bgNames).map(id => ({url:art54+'backgrounds/'+id+'.webp',name:bgNames[id],type:'image',group:'Décor'}));
+const v56Decor = {
+  'auberge':['rustic-inn-corner','Auberge — salle commune'],
+  'autel-reveil':['awakening-frost-chamber','Réveil — autel de basalte'],
+  'bibliotheque':['winter-library-oblique','Bibliothèque — vue de la mezzanine'],
+  'foret-noire':['snow-forest-sideview','Lisière — pente nocturne'],
+  'galeries-basalte':['basalt-catacombs-transverse','Galeries — voûtes irrégulières'],
+  'serre':['winter-greenhouse-oblique','Serre — bassin et verrières'],
+  'trone-ebene':['ebony-throne-lateral','Trône — cathédrale éventrée']
+};
+const allCG = Object.keys(bgNames).map(id => {
+  const modern = v56Decor[id];
+  return modern
+    ? {url:art56+modern[0]+'.webp',legacyUrl:art54+'backgrounds/'+id+'.webp',name:modern[1],type:'image',group:'Décor'}
+    : {url:art54+'backgrounds/'+id+'.webp',name:bgNames[id],type:'image',group:'Décor'};
+});
+// Le ravin V56 est un cadrage distinct des catacombes et mérite sa propre case.
+allCG.push({url:art56+'basalt-ravine-oblique.webp',legacyUrl:art54+'backgrounds/galeries-basalte.webp',name:'Combe — après les lances de givre',type:'image',group:'Décor'});
 allCG.push(
   {url:art54+'animations/eveil-givre.gif',name:'Éveil du givre',type:'image',group:'Animation'},
   {url:art54+'animations/souvenirs-vivants.mp4',name:'Souvenirs vivants',type:'video',group:'Animation'},
@@ -2375,7 +2392,12 @@ allCG.push(
   {url:art55+'cg/fin-eclaireur-elenya-alistair.webp',name:'Romance — Elenya et Alistair',type:'image',group:'CG'},
   {url:art55+'cg/fin-poly-elenya-kaelen-alistair.webp',name:'Romance — Deux mains libres',type:'image',group:'CG'}
 );
-endingIds.forEach(id => allCG.push({
+const uniqueEndingVideoIds = [
+  'FIN_POLY','GAME_OVER_SIRENE','FIN_SACRIFICE','FIN_MORTELLE',
+  'FIN_OMBRE','FIN_ECLAIREUR','FIN_RECONCILIATION','FIN_BRISEE',
+  'FIN_CHAOS','GAME_OVER_VENIN','FIN_CORONA','ACTE5_02V','NG_FIN_CYCLE'
+];
+uniqueEndingVideoIds.forEach(id => allCG.push({
   url:art55+'endings/'+id+'.mp4',
   name:'Cinématique — '+id.replace(/^GAME_OVER_/,'').replace(/^NG_FIN_/,'').replace(/^FIN_/,'').replace(/^ACTE5_/,'').replace(/_/g,' '),
   type:'video',group:'Fin'
@@ -2383,8 +2405,9 @@ endingIds.forEach(id => allCG.push({
 grid.innerHTML = '';
 allCG.forEach(cg => {
 const item = document.createElement('div');
-item.className = 'gallery-item' + (unlocked.includes(cg.url) ? '' : ' locked');
-if (unlocked.includes(cg.url)) {
+const cgUnlocked = unlocked.includes(cg.url) || (cg.legacyUrl && unlocked.includes(cg.legacyUrl));
+item.className = 'gallery-item' + (cgUnlocked ? '' : ' locked');
+if (cgUnlocked) {
 item.tabIndex=0;item.setAttribute('role','button');item.setAttribute('aria-label',cg.name);
 item.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();item.click();}};
 item.innerHTML = cg.type === 'video'

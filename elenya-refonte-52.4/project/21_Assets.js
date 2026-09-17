@@ -97,7 +97,10 @@ function normalizeAssetRef(value) {
   return null; // ne jamais envoyer un faux nom de fichier au navigateur.
 }
 
-// V52.3.0 — une cinématique distincte pour chacune des 33 fins et épilogues.
+// V52.4.4 — compatibilité historique : les 33 IDs restent déclarés.
+// Le pack V55 ne contient toutefois que 13 fichiers binaires réellement distincts.
+// Une fin qui réutilise le fichier d'une autre fin ne doit plus afficher cette
+// cinématique comme si elle lui appartenait : elle garde alors son décor/sa CG.
 const ELENYA_ENDING_VIDEO_IDS_V55 = Object.freeze([
   'FIN_POLY','GAME_OVER_SURCHARGE','GAME_OVER_SIRENE','GAME_OVER_SCELLEE',
   'FIN_HIVER','FIN_SACRIFICE','FIN_MORTELLE','FIN_OMBRE','FIN_ECLAIREUR',
@@ -108,11 +111,26 @@ const ELENYA_ENDING_VIDEO_IDS_V55 = Object.freeze([
   'NG_FIN_LIBERATION','NG_FIN_AMOUR','NG_FIN_DEUX_MAINS','NG_FIN_VIDE',
   'NG_FIN_CYCLE','NG_FIN_FRONTIERE'
 ]);
+const ELENYA_ENDING_VIDEO_PRIMARY_IDS_V55 = Object.freeze([
+  'FIN_POLY','GAME_OVER_SIRENE','FIN_SACRIFICE','FIN_MORTELLE',
+  'FIN_OMBRE','FIN_ECLAIREUR','FIN_RECONCILIATION','FIN_BRISEE',
+  'FIN_CHAOS','GAME_OVER_VENIN','FIN_CORONA','ACTE5_02V','NG_FIN_CYCLE'
+]);
+const ELENYA_ENDING_VIDEO_DUPLICATE_IDS_V55 = Object.freeze([
+  'GAME_OVER_SURCHARGE','GAME_OVER_SCELLEE','FIN_HIVER','FIN_SOLO',
+  'FIN_TEMOIN','FIN_EQUILIBRE','FIN_REDEMPTION','FIN_VERITE',
+  'GAME_OVER_POSSESSION','FIN_VEYRA','FIN_SERAPHINE','FIN_MIRA',
+  'FIN_DETTE_ANNULEE','ACTE5_02D','ACTE5_02R','NG_FIN_LIBERATION',
+  'NG_FIN_AMOUR','NG_FIN_DEUX_MAINS','NG_FIN_VIDE','NG_FIN_FRONTIERE'
+]);
 
 function endingVideoV55_(scene, sceneId) {
   if (!scene || scene.isEnd !== true) return null;
   const id = String(scene.sceneNumber || sceneId || '');
-  return ELENYA_ENDING_VIDEO_IDS_V55.indexOf(id) >= 0
+  // « none » reste truthy pour empêcher SceneManager de reprendre un ancien
+  // transitionGif faux, puis normalizeAssetRef le transforme en null côté client.
+  if (ELENYA_ENDING_VIDEO_DUPLICATE_IDS_V55.indexOf(id) >= 0) return 'none';
+  return ELENYA_ENDING_VIDEO_PRIMARY_IDS_V55.indexOf(id) >= 0
     ? ELENYA_ART_V55_BASE + 'endings/' + id + '.mp4'
     : null;
 }
